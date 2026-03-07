@@ -155,6 +155,66 @@ li {
     color: white;
 }
 
+/* --- 5. 活動報告（日記）のデザイン --- */
+.blog-item {
+    background: #fff;
+    border: none;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* ふんわりした影 */
+    transition: transform 0.3s;
+    text-align: left; /* 左寄せに固定 */
+}
+
+.blog-item:hover {
+    transform: translateY(-3px); /* マウスを乗せると少し浮く */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+summary {
+    padding: 20px;
+    cursor: pointer;
+    list-style: none; /* デフォルトの矢印を消す */
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: bold;
+    background: #fff;
+    outline: none;
+}
+
+/* 矢印の代わりに「＋」マークを表示 */
+summary::before {
+    content: "＋";
+    color: var(--main-color);
+    font-size: 1.2em;
+    transition: 0.3s;
+}
+
+/* 開いている時は「＋」を斜めにして「×」っぽくする */
+details[open] summary::before {
+    transform: rotate(45deg);
+}
+
+.blog-detail {
+    padding: 0 25px 25px;
+    border-top: 1px solid #f0f0f0;
+    color: #444;
+    line-height: 1.7;
+}
+
+/* 💡 画像の装飾：枠線と影をつける */
+.blog-detail img {
+    width: 100%;
+    max-width: 600px;
+    display: block;
+    margin: 15px auto;
+    border-radius: 10px;
+    border: 5px solid #fff; /* 白枠 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* 影 */
+}
+
 /* --- 4. スマホ用の最適化 --- */
 @media (max-width: 768px) {
     header { padding: 15px 20px; flex-direction: column; gap: 10px; }

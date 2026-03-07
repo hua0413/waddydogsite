@@ -4,80 +4,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>メンバー紹介 - ワッディードックプロジェクト</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
     <style>
-        /* 1. 全要素のサイズ計算を正しくする */
-        * { box-sizing: border-box; }
-
-        /* 2. 横揺れ防止 */
-        body { 
-            font-family: "Helvetica Neue", Arial, sans-serif; 
-            margin: 0; 
-            line-height: 1.8; 
-            color: #333;
-            overflow-x: hidden;
-            width: 100%;
-        }
-
-        /* 3. ヘッダー（indexと同じデザインに統一） */
-        header { 
-            background: #fff; 
-            padding: 15px 5%; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-        }
-        .logo { font-size: 1.3em; font-weight: bold; color: #4285f4; text-decoration: none; }
-        nav a { margin-left: 15px; text-decoration: none; color: #666; font-size: 0.9em; }
-
-        /* 4. コンテンツ部分 */
-        .content { 
-            padding: 40px 20px; /* スマホでも窮屈にならない余白 */
-            max-width: 800px; 
-            margin: auto; 
-            width: 100%;
-        }
-
-        h1 { 
-            font-size: 1.8em; 
-            border-left: 5px solid #4285f4; 
-            padding-left: 15px; 
-            margin-bottom: 30px; 
-        }
-
-        /* リストのデザインを少しおしゃれに */
-        ul { 
-            list-style: none; 
-            padding: 0; 
-        }
-        li { 
-            padding: 12px 0; 
-            border-bottom: 1px solid #eee; 
-            font-size: 1.1em;
-        }
-        li strong { color: #4285f4; display: inline-block; width: 140px; }
-
-        .back-home { 
-            display: inline-block; 
-            margin-top: 30px; 
-            color: #4285f4; 
-            text-decoration: none; 
-            font-weight: bold; 
-            padding: 10px 20px;
-            border: 1px solid #4285f4;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        .back-home:hover {
-            background: #4285f4;
-            color: white;
-        }
-
-        /* 5. スマホ用調整 */
+        /* 例：メンバー紹介のリストだけ少しこだわりたい場合など */
+        li strong { display: inline-block; width: 140px; color: #4285f4; }
         @media (max-width: 768px) {
-            header { flex-direction: column; gap: 10px; text-align: center; }
-            nav a { margin: 0 10px; }
-            li strong { display: block; width: auto; margin-bottom: 5px; } /* 役職を名前の上に配置 */
+            li strong { display: block; width: auto; }
         }
     </style>
 </head>

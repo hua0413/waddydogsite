@@ -25,6 +25,47 @@
         .service-card { background: #f9f9f9; padding: 20px; border-radius: 8px; text-align: center; }
 
         /* フッター */
+        /* サービスカード全体の並び（PC用） */
+        .services {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap; /* 幅が足りない時に折り返す設定 */
+            margin-top: 20px;
+        }
+
+        /* カード1枚ずつの設定 */
+        .service-card {
+            background: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px; /* PCでの幅 */
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        /* --- スマホ用の設定（画面幅が768px以下の時） --- */
+        @media (max-width: 768px) {
+            .services {
+                flex-direction: column; /* 横並びを縦並びに変更 */
+                align-items: center;    /* 中央に寄せる */
+            }
+
+            .service-card {
+                width: 90%;             /* 横幅を画面いっぱいに近くする */
+                margin-bottom: 15px;    /* カード同士の上下の隙間 */
+            }
+        }
+
+        /* フッター（既存のものに少し調整） */
+        footer { 
+            background: #333; 
+            color: white; 
+            text-align: center; 
+            padding: 30px; 
+            margin-top: 50px; 
+            clear: both; /* 回り込み防止 */
+        }
         footer { background: #333; color: white; text-align: center; padding: 30px; margin-top: 50px; }
     </style>
 </head>
@@ -72,6 +113,7 @@
 </body>
 
 </html>
+
 
 
 

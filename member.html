@@ -3,14 +3,82 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
-    <title>メンバー紹介 - Cloud Innovation</title>
+    <title>メンバー紹介 - ワッディードックプロジェクト</title>
     <style>
-        body { font-family: sans-serif; margin: 0; line-height: 1.6; }
-        header { background: #fff; padding: 20px 50px; display: flex; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .logo { font-size: 1.5em; font-weight: bold; color: #4285f4; text-decoration: none; }
-        nav a { margin-left: 20px; text-decoration: none; color: #666; }
-        .content { padding: 50px; max-width: 800px; margin: auto; }
-        .back-home { display: inline-block; margin-top: 20px; color: #4285f4; text-decoration: none; font-weight: bold; }
+        /* 1. 全要素のサイズ計算を正しくする */
+        * { box-sizing: border-box; }
+
+        /* 2. 横揺れ防止 */
+        body { 
+            font-family: "Helvetica Neue", Arial, sans-serif; 
+            margin: 0; 
+            line-height: 1.8; 
+            color: #333;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* 3. ヘッダー（indexと同じデザインに統一） */
+        header { 
+            background: #fff; 
+            padding: 15px 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        }
+        .logo { font-size: 1.2em; font-weight: bold; color: #4285f4; text-decoration: none; }
+        nav a { margin-left: 15px; text-decoration: none; color: #666; font-size: 0.9em; }
+
+        /* 4. コンテンツ部分 */
+        .content { 
+            padding: 40px 20px; /* スマホでも窮屈にならない余白 */
+            max-width: 800px; 
+            margin: auto; 
+            width: 100%;
+        }
+
+        h1 { 
+            font-size: 1.8em; 
+            border-left: 5px solid #4285f4; 
+            padding-left: 15px; 
+            margin-bottom: 30px; 
+        }
+
+        /* リストのデザインを少しおしゃれに */
+        ul { 
+            list-style: none; 
+            padding: 0; 
+        }
+        li { 
+            padding: 12px 0; 
+            border-bottom: 1px solid #eee; 
+            font-size: 1.1em;
+        }
+        li strong { color: #4285f4; display: inline-block; width: 140px; }
+
+        .back-home { 
+            display: inline-block; 
+            margin-top: 30px; 
+            color: #4285f4; 
+            text-decoration: none; 
+            font-weight: bold; 
+            padding: 10px 20px;
+            border: 1px solid #4285f4;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .back-home:hover {
+            background: #4285f4;
+            color: white;
+        }
+
+        /* 5. スマホ用調整 */
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 10px; text-align: center; }
+            nav a { margin: 0 10px; }
+            li strong { display: block; width: auto; margin-bottom: 5px; } /* 役職を名前の上に配置 */
+        }
     </style>
 </head>
 <body>
@@ -29,19 +97,15 @@
             <li><strong>副代表兼徴収人:</strong> 小掠 大地</li>
             <li><strong>会長:</strong> 坂口 心風</li>
             <li><strong>副会長:</strong> 森田 董伊</li>
-<li><strong>経理:</strong> 山田 悠斗</li>
-<li><strong>団員:</strong> 打田 理一</li>
-<li><strong>団員:</strong> 前田 愛生</li>
-<li><strong>団員:</strong> 小田谷 橙良</li>
-<li><strong>団員:</strong> ナタニエル</li>
+            <li><strong>経理:</strong> 山田 悠斗</li>
+            <li><strong>団員:</strong> 打田 理一</li>
+            <li><strong>団員:</strong> 前田 愛生</li>
+            <li><strong>団員:</strong> 小田谷 橙良</li>
+            <li><strong>団員:</strong> ナタニエル</li>
             <li><strong>見習い団員:</strong> 柴田 幸孝</li>
         </ul>
         <a href="index.html" class="back-home">← ホームに戻る</a>
     </div>
 </body>
-
 </html>
-
-
-
 

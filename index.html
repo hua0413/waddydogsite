@@ -59,26 +59,28 @@
             font-size: 1.8em;
         }
 
-        /* サービスカード（PCでの並び） */
+   /* サービスカード（PCでの並び） */
         .services {
             display: flex;
             justify-content: center;
-            gap: 30px; /* カード同士の間隔を広く */
-            flex-wrap: wrap; 
+            gap: 30px; /* カード同士の間隔 */
+            flex-wrap: wrap; /* 画面が狭くなったら自動で折り返す */
+            width: 100%;
         }
 
         .service-card {
             background: #f9f9f9;
-            padding: 30px;
+            padding: 40px 30px; /* 上下の余白を増やしてゆったりさせる */
             border-radius: 12px;
-            flex: 1; /* 均等に広がるようにする */
-            min-width: 280px; /* 狭くなりすぎない限界値 */
-            max-width: 350px; /* 広がりすぎない限界値 */
+            /* ↓ flex: 1 を消して、幅を固定めに変更 */
+            width: 320px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             transition: transform 0.3s;
+            text-align: center;
         }
         .service-card:hover { transform: translateY(-5px); }
-        .service-card h3 { color: #4285f4; margin-bottom: 15px; }
+        .service-card h3 { color: #4285f4; margin-bottom: 20px; font-size: 1.4em; }
+        .service-card p { font-size: 1em; margin: 0; }
 
         /* フッター */
         footer { 
@@ -146,6 +148,7 @@
 
 </body>
 </html>
+
 
 
 

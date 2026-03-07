@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -6,67 +7,100 @@
     <title>ワッディードックプロジェクト</title>
     <style>
         /* 全体のスタイル */
-        body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; color: #333; line-height: 1.6; }
+        body { 
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif; 
+            margin: 0; 
+            color: #333; 
+            line-height: 1.8; /* 行間を広げて読みやすく */
+            word-wrap: break-word; /* 長い単語の突き抜け防止 */
+        }
         
-        /* ヘッダー（メニュー） */
-        header { background: #fff; padding: 20px 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .logo { font-size: 1.5em; font-weight: bold; color: #4285f4; }
-        nav a { margin-left: 20px; text-decoration: none; color: #666; font-size: 0.9em; }
+        /* ヘッダー */
+        header { 
+            background: #fff; 
+            padding: 15px 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky; /* スクロールしても上についてくる */
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-size: 1.3em; font-weight: bold; color: #4285f4; }
+        nav a { margin-left: 15px; text-decoration: none; color: #666; font-size: 0.95em; font-weight: bold; }
+        nav a:hover { color: #4285f4; }
 
-        /* メイン画像（ヒーローセクション） */
-        .hero { background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(S__18055174.jpg); 
-                background-size: cover; background-position: center; height: 600px; display: flex; align-items: center; justify-content: center; color: white; text-align: center; }
-        .hero h1 { font-size: 3em; margin: 0; }
+        /* メイン画像 */
+        .hero { 
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(S__18055174.jpg); 
+            background-size: cover; 
+            background-position: center; 
+            height: 60vh; /* 画面の高さの60%にする（窮屈さ解消） */
+            min-height: 400px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            text-align: center; 
+            padding: 0 20px;
+        }
+        .hero h1 { font-size: 2.5em; margin: 0 0 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .hero p { font-size: 1.1em; max-width: 600px; margin: 0 auto; }
 
-        /* 会社概要セクション */
-        .section { padding: 80px 50px; max-width: 900px; margin: auto; }
-        .section h2 { border-bottom: 3px solid #4285f4; display: inline-block; margin-bottom: 30px; }
-        .services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .service-card { background: #f9f9f9; padding: 20px; border-radius: 8px; text-align: center; }
+        /* セクション共通 */
+        .section { padding: 60px 5%; max-width: 1100px; margin: auto; text-align: center; }
+        .section h2 { 
+            border-bottom: 3px solid #4285f4; 
+            display: inline-block; 
+            margin-bottom: 40px; 
+            padding-bottom: 10px;
+            font-size: 1.8em;
+        }
 
-        /* フッター */
-        /* サービスカード全体の並び（PC用） */
+        /* サービスカード（PCでの並び） */
         .services {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap; /* 幅が足りない時に折り返す設定 */
-            margin-top: 20px;
+            gap: 30px; /* カード同士の間隔を広く */
+            flex-wrap: wrap; 
         }
 
-        /* カード1枚ずつの設定 */
         .service-card {
-            background: #f4f4f4;
-            padding: 20px;
-            border-radius: 8px;
-            width: 300px; /* PCでの幅 */
-            box-sizing: border-box;
-            color: #333;
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 12px;
+            flex: 1; /* 均等に広がるようにする */
+            min-width: 280px; /* 狭くなりすぎない限界値 */
+            max-width: 350px; /* 広がりすぎない限界値 */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
         }
+        .service-card:hover { transform: translateY(-5px); }
+        .service-card h3 { color: #4285f4; margin-bottom: 15px; }
 
-        /* --- スマホ用の設定（画面幅が768px以下の時） --- */
-        @media (max-width: 768px) {
-            .services {
-                flex-direction: column; /* 横並びを縦並びに変更 */
-                align-items: center;    /* 中央に寄せる */
-            }
-
-            .service-card {
-                width: 90%;             /* 横幅を画面いっぱいに近くする */
-                margin-bottom: 15px;    /* カード同士の上下の隙間 */
-            }
-        }
-
-        /* フッター（既存のものに少し調整） */
+        /* フッター */
         footer { 
             background: #333; 
-            color: white; 
+            color: #ddd; 
             text-align: center; 
-            padding: 30px; 
+            padding: 40px 20px; 
             margin-top: 50px; 
-            clear: both; /* 回り込み防止 */
+            font-size: 0.85em;
         }
-        footer { background: #333; color: white; text-align: center; padding: 30px; margin-top: 50px; }
+
+        /* --- スマホ用の最適化 --- */
+        @media (max-width: 768px) {
+            header { padding: 15px 20px; flex-direction: column; gap: 10px; }
+            nav a { margin: 0 10px; }
+            
+            .hero h1 { font-size: 1.8em; }
+            .hero p { font-size: 0.9em; }
+
+            .section { padding: 40px 20px; }
+            .services { flex-direction: column; align-items: center; }
+            .service-card { width: 100%; max-width: 100%; } /* スマホでは横幅いっぱい */
+        }
     </style>
 </head>
 <body>
@@ -74,9 +108,9 @@
     <header>
         <div class="logo">ワッディードックプロジェクト</div>
         <nav>
-    <a href="index.html">ホーム</a>
-    <a href="member.html">メンバー</a>
-</nav>
+            <a href="index.html">ホーム</a>
+            <a href="member.html">メンバー</a>
+        </nav>
     </header>
 
     <div class="hero">
@@ -87,31 +121,29 @@
     </div>
 
     <div class="section">
-        <h2>私たちができること、これからのこと</h2>
+        <h2>私たちができること</h2>
         <div class="services">
             <div class="service-card">
                 <h3>製作事業</h3>
-                <p>現在二丁の光（主演：小掠大地）</p>
-                <p>を製作中です</p>
+                <p>現在二丁の光（主演：小掠大地）を製作中です</p>
             </div>
             <div class="service-card">
                 <h3>借金徴収</h3>
-                <p>スペシャリストにより徴収します</p>
-        </div>
+                <p>スペシャリストにより迅速・丁寧に徴収します</p>
+            </div>
             <div class="service-card">
                 <h3>～卒業～</h3>
-                <p>中学校を卒業し、</p>
-                <p>それぞれの道に進みます</p>
-                </div>
+                <p>中学校を卒業し、それぞれの道へ。新たなステージでも加速し続けます。</p>
+            </div>
+        </div>
     </div>
 
     <footer>
-        &copy; 2026 ワッディードックプロジェクト
-        ※この団体は架空であり、活動はしておりません。
+        <p>&copy; 2026 ワッディードックプロジェクト</p>
+        <p style="opacity: 0.7;">※この団体は架空であり、実際の活動はしておりません。</p>
     </footer>
 
 </body>
-
 </html>
 
 

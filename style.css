@@ -113,12 +113,15 @@ footer {
     font-size: 0.85em;
 }
 
-/* --- 3. メンバー紹介ページ専用 --- */
-.content { 
-    padding: 40px 20px; 
-    max-width: 800px; 
-    margin: auto; 
+.content {
+    padding: 40px 20px;
+    max-width: 800px;
+    margin: 0 auto;
     width: 100%;
+    /* 💡 ここがポイント！ */
+    min-height: calc(100vh - 300px); /* 画面の高さからヘッダー/フッター分を引く */
+    display: flex;
+    flex-direction: column;
 }
 
 .content h1 { 

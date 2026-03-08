@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社員ログイン - ワッディードック</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container { max-width: 400px; margin: 50px auto; padding: 20px; text-align: center; border: 1px solid #ddd; border-radius: 10px; }
+        .hidden { display: none; }
+        input { width: 80%; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; background: #4285f4; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="login-form" class="login-container">
+        <h2>社員ログイン</h2>
+        <input type="text" id="userId" placeholder="社員ID">
+        <input type="password" id="userPass" placeholder="パスワード">
+        <button onclick="login()">ログイン</button>
+        <p id="error" style="color:red;"></p>
+    </div>
+
+    <div id="staff-page" class="login-container hidden">
+        <h2 id="welcome-msg"></h2>
+        <p>ここはあなた専用の社員ページです。</p>
+        <hr>
+        <div style="text-align: left;">
+            <p>【今日の徴収ノルマ】</p>
+            <ul>
+                <li>松阪駅前セブンイレブン周辺の巡回</li>
+                <li>備品のサングラスの在庫確認</li>
+            </ul>
+        </div>
+        <button onclick="location.reload()">ログアウト</button>
+    </div>
+
+    <script>
+        // 本来はGASと通信しますが、まずはフロントエンドで動きを作ります
+        // 将来的にGASと連携させるための準備コードです
+        function login() {
+            const id = document.getElementById("userId").value;
+            const pass = document.getElementById("userPass").value;
+            
+            // 一時的なデモ用判定（後でGAS連携に書き換え可能）
+            if (id === "W001" && pass === "pass123") {
+                showPage("和田 大地");
+            } else if (id === "W002" && pass === "dog456") {
+                showPage("小掠 大地");
+            } else {
+                document.getElementById("error").innerText = "IDまたはパスワードが違います";
+            }
+        }
+
+        function showPage(name) {
+            document.getElementById("login-form").classList.add("hidden");
+            document.getElementById("staff-page").classList.remove("hidden");
+            document.getElementById("welcome-msg").innerText = "ようこそ、" + name + "さん！";
+        }
+    </script>
+</body>
+</html>

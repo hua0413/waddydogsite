@@ -6,56 +6,77 @@
     <title>社員ログイン - ワッディードック</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .login-container { max-width: 400px; margin: 50px auto; padding: 20px; text-align: center; border: 1px solid #ddd; border-radius: 10px; }
+        .login-container { max-width: 400px; margin: 50px auto; padding: 30px; text-align: center; background: #fff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .hidden { display: none; }
-        input { width: 80%; padding: 10px; margin: 10px 0; }
-        button { padding: 10px 20px; background: #4285f4; color: white; border: none; cursor: pointer; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        button { width: 95%; padding: 12px; background: #4285f4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        button:disabled { background: #ccc; }
+        #error { color: #ff4d4d; margin-top: 10px; font-size: 14px; }
     </style>
 </head>
 <body>
     <div id="login-form" class="login-container">
         <h2>社員ログイン</h2>
+        <p>IDとパスワードを入力してください</p>
         <input type="text" id="userId" placeholder="社員ID">
         <input type="password" id="userPass" placeholder="パスワード">
-        <button onclick="login()">ログイン</button>
-        <p id="error" style="color:red;"></p>
+        <button id="loginBtn" onclick="login()">ログイン</button>
+        <p id="error"></p>
     </div>
 
     <div id="staff-page" class="login-container hidden">
         <h2 id="welcome-msg"></h2>
-        <p>ここはあなた専用の社員ページです。</p>
+        <p>社員専用ページへようこそ。</p>
         <hr>
-        <div style="text-align: left;">
-            <p>【今日の徴収ノルマ】</p>
-            <ul>
-                <li>松阪駅前セブンイレブン周辺の巡回</li>
-                <li>備品のサングラスの在庫確認</li>
-            </ul>
+        <div style="text-align: left; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+            <p><strong>【本日のお知らせ】</strong></p>
+            <p>・松阪駅前での活動報告を更新しました。</p>
+            <p>・備品のドッグフードの在庫が少なくなっています。</p>
         </div>
-        <button onclick="location.reload()">ログアウト</button>
+        <br>
+        <button onclick="location.reload()" style="background: #666;">ログアウト</button>
     </div>
 
     <script>
-        // 本来はGASと通信しますが、まずはフロントエンドで動きを作ります
-        // 将来的にGASと連携させるための準備コードです
-        function login() {
+        // 💡 1. ここに、さっきコピーした「ウェブアプリ URL」を貼り付けてください
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
+
+        async function login() {
             const id = document.getElementById("userId").value;
             const pass = document.getElementById("userPass").value;
-            
-            // 一時的なデモ用判定（後でGAS連携に書き換え可能）
-            if (id === "W001" && pass === "pass123") {
-                showPage("和田 大地");
-            } else if (id === "W002" && pass === "dog456") {
-                showPage("小掠 大地");
-            } else {
-                document.getElementById("error").innerText = "IDまたはパスワードが違います";
-            }
-        }
+            const btn = document.getElementById("loginBtn");
+            const errorElement = document.getElementById("error");
 
-        function showPage(name) {
-            document.getElementById("login-form").classList.add("hidden");
-            document.getElementById("staff-page").classList.remove("hidden");
-            document.getElementById("welcome-msg").innerText = "ようこそ、" + name + "さん！";
+            if (!id || !pass) {
+                errorElement.innerText = "IDとパスワードを入力してください";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "照合中...";
+            errorElement.innerText = "";
+
+            try {
+                // 💡 2. GASにIDとパスワードを送って確認してもらう
+                const response = await fetch(`${GAS_URL}?id=${id}&pass=${pass}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    // ログイン成功：名前を表示
+                    document.getElementById("login-form").classList.add("hidden");
+                    document.getElementById("staff-page").classList.remove("hidden");
+                    document.getElementById("welcome-msg").innerText = "ようこそ、" + result.name + "さん！";
+                } else {
+                    // ログイン失敗
+                    errorElement.innerText = result.message || "ログインに失敗しました";
+                }
+            } catch (e) {
+                errorElement.innerText = "エラーが発生しました。時間を置いて試してください。";
+                console.error(e);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "ログイン";
+            }
         }
     </script>
 </body>

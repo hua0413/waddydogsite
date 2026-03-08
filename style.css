@@ -7,15 +7,15 @@ html, body {
 }
 
 body { 
-    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif; 
-    margin: 0; 
-    color: var(--text-black); 
-    line-height: 1.8;
-    word-wrap: break-word;
-    /* ↓ これを追加 */
+    margin: 0;
+    /* 💡 画面の高さ（100%）を基準にする設定 */
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; 
+    
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif; 
+    color: var(--text-black); 
+    line-height: 1.8;
 }
 /* --- 1. 設定：ここを変えるだけでサイト全体の色が変わる --- */
 :root {
@@ -129,8 +129,9 @@ footer {
     color: white;
     padding: 30px 20px;
     text-align: center;
-    width: 100%; /* 100vw から 100% に戻す */
-    margin: 0;
+    width: 100%;
+    /* 💡 上にマージンを作らない */
+    margin-top: auto; 
 }
 
 /* --- .content の部分をこれに書き換え --- */
@@ -139,9 +140,12 @@ footer {
     max-width: 900px; 
     margin: 0 auto; 
     width: 100%;
-    /* ↓ min-height を flex: 1 に変更 */
-    flex: 1; 
+    
+    /* 💡 これが重要！自動で伸びてフッターを下に押し下げます */
+    flex-grow: 1; 
+    
     box-sizing: border-box;
+    background-color: #ffffff; /* 背景を白で固定 */
 }
 .content h1 { 
     font-size: 1.8em; 

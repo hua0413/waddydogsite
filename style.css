@@ -1,9 +1,19 @@
-/* --- CSSの1番上にある body をこれに上書き --- */
+/* --- 一番上の body をこれに書き換え --- */
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
-    overflow-x: hidden;
+    overflow-x: hidden; /* 横揺れ防止 */
+}
+
+body { 
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif; 
+    color: var(--text-black); 
+    line-height: 1.8;
+    word-wrap: break-word;
+    display: flex;       /* 💡 フッターを下に固定するための設定 */
+    flex-direction: column;
+    min-height: 100vh;
 }
 /* --- 1. 設定：ここを変えるだけでサイト全体の色が変わる --- */
 :root {

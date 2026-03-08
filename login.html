@@ -6,15 +6,64 @@
     <title>社員ログイン - ワッディードック</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .login-container { max-width: 400px; margin: 50px auto; padding: 30px; text-align: center; background: #fff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        body { background-color: #f4f7f8; font-family: sans-serif; }
+        .login-container { 
+            max-width: 450px; 
+            margin: 50px auto; 
+            padding: 30px; 
+            background: #ffffff; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            text-align: center; 
+        }
         .hidden { display: none; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
-        button { width: 95%; padding: 12px; background: #4285f4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        input { 
+            width: 90%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 16px;
+        }
+        button { 
+            width: 95%; 
+            padding: 12px; 
+            background: #4285f4; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:hover { background: #357ae8; }
         button:disabled { background: #ccc; }
-        #error { color: #ff4d4d; margin-top: 10px; font-size: 14px; }
+        
+        /* 社員情報のデザイン */
+        .profile-card {
+            text-align: left;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 5px solid #4285f4;
+        }
+        .role-badge {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #4285f4;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        #error { color: #ff4d4d; margin-top: 10px; }
     </style>
 </head>
 <body>
+
     <div id="login-form" class="login-container">
         <h2>社員ログイン</h2>
         <p>IDとパスワードを入力してください</p>
@@ -25,20 +74,20 @@
     </div>
 
     <div id="staff-page" class="login-container hidden">
-        <h2 id="welcome-msg"></h2>
-        <p>社員専用ページへようこそ。</p>
-        <hr>
-        <div style="text-align: left; background: #f9f9f9; padding: 15px; border-radius: 8px;">
-            <p><strong>【本日のお知らせ】</strong></p>
-            <p>・松阪駅前での活動報告を更新しました。</p>
-            <p>・備品のドッグフードの在庫が少なくなっています。</p>
+        <div class="role-badge" id="user-role">役職</div>
+        <h2 id="welcome-msg">ようこそ</h2>
+        
+        <div class="profile-card">
+            <p><strong>【あなたへの個別連絡】</strong></p>
+            <p id="user-msg">メッセージを読み込んでいます...</p>
         </div>
+
         <br>
         <button onclick="location.reload()" style="background: #666;">ログアウト</button>
     </div>
 
     <script>
-        // 💡 1. ここに、さっきコピーした「ウェブアプリ URL」を貼り付けてください
+        // 💡 1. デプロイしたウェブアプリのURLに書き換えてください
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
 
         async function login() {
@@ -57,21 +106,24 @@
             errorElement.innerText = "";
 
             try {
-                // 💡 2. GASにIDとパスワードを送って確認してもらう
+                // GASに問い合わせ
                 const response = await fetch(`${GAS_URL}?id=${id}&pass=${pass}`);
                 const result = await response.json();
 
                 if (result.success) {
-                    // ログイン成功：名前を表示
+                    // ログイン成功：各情報を画面にセット
                     document.getElementById("login-form").classList.add("hidden");
                     document.getElementById("staff-page").classList.remove("hidden");
-                    document.getElementById("welcome-msg").innerText = "ようこそ、" + result.name + "さん！";
+                    
+                    document.getElementById("welcome-msg").innerText = result.name + " さん";
+                    document.getElementById("user-role").innerText = result.role || "社員";
+                    document.getElementById("user-msg").innerText = result.message || "現在、個別メッセージはありません。";
                 } else {
                     // ログイン失敗
-                    errorElement.innerText = result.message || "ログインに失敗しました";
+                    errorElement.innerText = result.message || "IDまたはパスワードが違います";
                 }
             } catch (e) {
-                errorElement.innerText = "エラーが発生しました。時間を置いて試してください。";
+                errorElement.innerText = "通信エラーが発生しました";
                 console.error(e);
             } finally {
                 btn.disabled = false;

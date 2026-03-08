@@ -133,16 +133,14 @@ footer {
     display: block;    /* ブロック要素として扱う */
 }
 
-/* --- 今の .content をこれに書き換えてください --- */
+/* --- .content の部分をこれに書き換え --- */
 .content { 
-    padding: 40px 5%; /* 左右に5%の余白を作る */
-    max-width: 1000px; /* 広がりすぎ防止 */
-    margin: 0 auto;    /* 中央に寄せる */
+    padding: 40px 5%; /* 左右に5%の余裕を持たせる */
+    max-width: 900px; /* 広がりすぎを防いで読みやすくする */
+    margin: 0 auto;   /* 中央に寄せる */
     width: 100%;
-    min-height: calc(100vh - 250px); 
+    flex: 1;          /* 💡 中身が少なくてもフッターを押し下げる魔法の1行 */
     box-sizing: border-box;
-    /* 背景が黒っぽく見えるのを防ぐなら↓を追加 */
-    background-color: #fff; 
 }
 .content h1 { 
     font-size: 1.8em; 

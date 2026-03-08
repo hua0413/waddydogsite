@@ -104,13 +104,16 @@ nav a:hover { color: var(--accent-hover); }
 }
 
 /* フッター */
-footer { 
-    background: var(--text-black); /* 変数を使用 */
-    color: #ddd; 
-    text-align: center; 
-    padding: 40px 20px; 
-    margin-top: 50px; 
-    font-size: 0.85em;
+footer {
+    background-color: #333; /* 背景色（今の色に合わせて変えてください） */
+    color: white;
+    padding: 30px 0;
+    text-align: center;
+    
+    /* 💡 ここが重要！ */
+    width: 100%;       /* 横幅を画面いっぱいに */
+    margin: 0;         /* 余計な隙間を消す */
+    display: block;    /* ブロック要素として扱う */
 }
 
 .content { 

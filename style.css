@@ -226,12 +226,13 @@ details[open] summary::before {
 /* 💡 画像の装飾：枠線と影をつける */
 .blog-detail img {
     width: 100%;
-    max-width: 600px;
+    max-width: 500px; /* 少し小さめにして上品に */
     display: block;
-    margin: 15px auto;
-    border-radius: 10px;
-    border: 5px solid #fff; /* 白枠 */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* 影 */
+    margin: 20px auto;
+    border-radius: 8px;
+    border: 8px solid #fff; /* 太めの白枠でポラロイド風に */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15); /* 影を少し深く */
+    transform: rotate(-1deg); /* 0.5〜1度だけ傾けると「置いてある感」が出ます */
 }
 
 /* --- 4. スマホ用の最適化 --- */

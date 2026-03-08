@@ -3,133 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社員ログイン - ワッディードック</title>
-    <link rel="stylesheet" href="style.css">
+    <title>WaddyDog Portal | 社員専用ページ</title>
     <style>
-        body { background-color: #f4f7f8; font-family: sans-serif; }
-        .login-container { 
-            max-width: 450px; 
-            margin: 50px auto; 
-            padding: 30px; 
-            background: #ffffff; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            text-align: center; 
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --accent-yellow: #f59e0b;
         }
-        .hidden { display: none; }
-        input { 
-            width: 90%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            font-size: 16px;
+
+        body {
+            margin: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
         }
-        button { 
-            width: 95%; 
-            padding: 12px; 
-            background: #4285f4; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 16px;
-            transition: 0.3s;
+
+        /* ログイン画面のデザイン */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        button:hover { background: #357ae8; }
-        button:disabled { background: #ccc; }
-        
-        /* 社員情報のデザイン */
-        .profile-card {
-            text-align: left;
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border-left: 5px solid #4285f4;
-        }
-        .role-badge {
-            display: inline-block;
-            background: #e8f0fe;
-            color: #4285f4;
-            padding: 2px 10px;
+
+        .login-card {
+            background: var(--card-bg);
+            padding: 40px;
             border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 10px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
         }
-        #error { color: #ff4d4d; margin-top: 10px; }
+
+        /* マイページ全体のデザイン（PC対応） */
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr; /* 左にプロフィール、右にコンテンツ */
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard { grid-template-columns: 1fr; } /* スマホでは縦並び */
+        }
+
+        /* 左側：プロフィールカード */
+        .side-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            height: fit-content;
+        }
+
+        .avatar-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            border: 4px solid var(--primary-color);
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .badge {
+            background: #dbeafe;
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* 右側：コンテンツエリア */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .status-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 進捗バーの豪華版 */
+        .progress-wrapper {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 24px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #2563eb, #60a5fa);
+            height: 100%;
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.1, 0, 0, 1);
+        }
+
+        /* メッセージ板のデザイン */
+        .memo-area {
+            background: #fffbeb;
+            border-left: 6px solid var(--accent-yellow);
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        /* 共通ボタン */
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="login-form" class="login-container">
-        <h2>社員ログイン</h2>
-        <p>IDとパスワードを入力してください</p>
+<div id="login-form" class="login-screen">
+    <div class="login-card">
+        <h2 style="margin-bottom: 8px;">WaddyDog Portal</h2>
+        <p style="color: #64748b; margin-bottom: 24px;">社員認証を行ってください</p>
         <input type="text" id="userId" placeholder="社員ID">
         <input type="password" id="userPass" placeholder="パスワード">
-        <button id="loginBtn" onclick="login()">ログイン</button>
-        <p id="error"></p>
+        <button id="loginBtn" class="btn" style="width: 100%; margin-top: 10px;" onclick="login()">ログイン</button>
+        <p id="error" style="color: #ef4444; margin-top: 15px; font-size: 14px;"></p>
     </div>
+</div>
 
-    <div id="staff-page" class="login-container hidden">
-        <div class="role-badge" id="user-role">役職</div>
-        <h2 id="welcome-msg">ようこそ</h2>
-        
-        <div class="profile-card">
-            <p><strong>【あなたへの個別連絡】</strong></p>
-            <p id="user-msg">メッセージを読み込んでいます...</p>
+<div id="staff-page" class="dashboard hidden">
+    <aside class="side-card">
+        <img id="user-img" src="https://via.placeholder.com/150" class="avatar-circle">
+        <div style="margin-bottom: 10px;"><span id="user-role" class="badge">役職</span></div>
+        <h2 id="welcome-msg" style="margin: 10px 0;">名前 さん</h2>
+        <p style="color: #64748b; font-size: 14px;">WaddyDog Project 社員</p>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+        <button onclick="location.reload()" class="btn" style="background: #64748b; width: 100%;">ログアウト</button>
+    </aside>
+
+    <main class="main-content">
+        <div class="status-card">
+            <h3 style="margin-top: 0;">📊 個人進捗ステータス</h3>
+            <div class="progress-wrapper">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                <span>達成度</span>
+                <span><span id="progress-text">0</span>%</span>
+            </div>
         </div>
 
-        <br>
-        <button onclick="location.reload()" style="background: #666;">ログアウト</button>
-    </div>
+        <div class="status-card">
+            <h3 style="margin-top: 0;">✉️ あなたへの個別指示</h3>
+            <div id="user-msg" class="memo-area">
+                指示事項を読み込んでいます...
+            </div>
+        </div>
 
-    <script>
-        // 💡 1. デプロイしたウェブアプリのURLに書き換えてください
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
+        <div class="status-card">
+            <h3 style="margin-top: 0;">📢 全社共通トピックス</h3>
+            <ul style="padding-left: 20px; color: #475569;">
+                <li>次回のポップアップイベントは3月25日に決定。</li>
+                <li>経費精算は月末までにスプレッドシートへ。</li>
+            </ul>
+        </div>
+    </main>
+</div>
 
-        async function login() {
-            const id = document.getElementById("userId").value;
-            const pass = document.getElementById("userPass").value;
-            const btn = document.getElementById("loginBtn");
-            const errorElement = document.getElementById("error");
+<script>
+    const GAS_URL = "あなたのGASのURL"; 
 
-            if (!id || !pass) {
-                errorElement.innerText = "IDとパスワードを入力してください";
-                return;
+    async function login() {
+        const id = document.getElementById("userId").value;
+        const pass = document.getElementById("userPass").value;
+        const btn = document.getElementById("loginBtn");
+        const error = document.getElementById("error");
+
+        if(!id || !pass) { error.innerText = "入力してください"; return; }
+
+        btn.disabled = true;
+        btn.innerText = "認証中...";
+
+        try {
+            const response = await fetch(`${GAS_URL}?id=${id}&pass=${pass}`);
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById("login-form").classList.add("hidden");
+                document.getElementById("staff-page").classList.remove("hidden");
+                
+                // データをセット
+                document.getElementById("welcome-msg").innerText = result.name + " さん";
+                document.getElementById("user-role").innerText = result.role || "一般社員";
+                document.getElementById("user-msg").innerText = result.message || "現在、特別な指示はありません。";
+                document.getElementById("user-img").src = result.img || "https://via.placeholder.com/150";
+                
+                // バーのアニメーション
+                const p = result.progress || 0;
+                setTimeout(() => {
+                    document.getElementById("progress-fill").style.width = p + "%";
+                    document.getElementById("progress-text").innerText = p;
+                }, 300);
+
+            } else {
+                error.innerText = result.message;
             }
-
-            btn.disabled = true;
-            btn.innerText = "照合中...";
-            errorElement.innerText = "";
-
-            try {
-                // GASに問い合わせ
-                const response = await fetch(`${GAS_URL}?id=${id}&pass=${pass}`);
-                const result = await response.json();
-
-                if (result.success) {
-                    // ログイン成功：各情報を画面にセット
-                    document.getElementById("login-form").classList.add("hidden");
-                    document.getElementById("staff-page").classList.remove("hidden");
-                    
-                    document.getElementById("welcome-msg").innerText = result.name + " さん";
-                    document.getElementById("user-role").innerText = result.role || "社員";
-                    document.getElementById("user-msg").innerText = result.message || "現在、個別メッセージはありません。";
-                } else {
-                    // ログイン失敗
-                    errorElement.innerText = result.message || "IDまたはパスワードが違います";
-                }
-            } catch (e) {
-                errorElement.innerText = "通信エラーが発生しました";
-                console.error(e);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "ログイン";
-            }
+        } catch (e) {
+            error.innerText = "通信エラー";
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "ログイン";
         }
-    </script>
+    }
+</script>
 </body>
 </html>

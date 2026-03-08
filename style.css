@@ -1,41 +1,32 @@
-/* --- 一番上の body をこれに書き換え --- */
+/* --- 1. 基本設定とフッター固定の魔法 --- */
 html, body {
     margin: 0;
     padding: 0;
-    width: 100%;
-    overflow-x: hidden; /* 横揺れ防止 */
+    height: 100%; /* 画面全体の高さを確保 */
 }
 
-body { 
-    margin: 0;
-    /* 💡 画面の高さ（100%）を基準にする設定 */
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    
-    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif; 
-    color: var(--text-black); 
-    line-height: 1.8;
-}
-/* --- 1. 設定：ここを変えるだけでサイト全体の色が変わる --- */
 :root {
-    --main-color: #4285f4;    /* サイトの主役の色（ロゴ、見出し、ボタン） */
-    --accent-hover: #4285f4;  /* ホバー時などのアクセント色 */
-    --text-black: #333333;    /* 文字の黒 */
-    --text-gray: #666666;     /* 補足のグレー */
-    --bg-light: #f9f9f9;      /* カードなどの背景色 */
+    --main-color: #4285f4;
+    --accent-hover: #4285f4;
+    --text-black: #333333;
+    --text-gray: #666666;
+    --bg-light: #f9f9f9;
 }
 
-/* --- 2. 基本スタイル --- */
 * { box-sizing: border-box; }
 
 body { 
     font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif; 
-    margin: 0; 
     color: var(--text-black); 
     line-height: 1.8;
     word-wrap: break-word;
+    /* フッターを下に押し出す設定 */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
+
+/* --- 2. 各パーツのデザイン --- */
 
 /* ヘッダー */
 header { 
@@ -53,7 +44,7 @@ header {
 .logo { 
     font-size: 1.3em; 
     font-weight: bold; 
-    color: var(--main-color); /* 変数を使用 */
+    color: var(--main-color);
     text-decoration: none;
 }
 
@@ -67,13 +58,24 @@ nav a {
 
 nav a:hover { color: var(--accent-hover); }
 
-/* メイン画像 */
+/* メインコンテンツエリア（ここが伸びてフッターを押し下げます） */
+.content { 
+    padding: 40px 20px; 
+    max-width: 900px; 
+    margin: 0 auto; 
+    width: 100%;
+    flex: 1 0 auto; /* 余ったスペースを全部埋める */
+    box-sizing: border-box;
+    background-color: #ffffff;
+}
+
+/* インデックス専用：ヒーローエリア */
 .hero { 
     background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(S__18055174.jpg); 
     background-size: cover; 
     background-position: center; 
     height: 60vh; 
-    min-height: 600px;
+    min-height: 400px;
     display: flex; 
     align-items: center; 
     justify-content: center; 
@@ -84,18 +86,17 @@ nav a:hover { color: var(--accent-hover); }
 
 .hero h1 { font-size: 2.5em; margin: 0 0 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
 
-/* セクション共通 */
+/* セクション設定 */
 .section { padding: 60px 5%; max-width: 1100px; margin: auto; text-align: center; }
 
 .section h2 { 
-    border-bottom: 3px solid var(--main-color); /* 変数を使用 */
+    border-bottom: 3px solid var(--main-color); 
     display: inline-block; 
     margin-bottom: 40px; 
     padding-bottom: 10px;
     font-size: 1.8em;
 }
 
-/* サービスカード */
 .services {
     display: flex;
     justify-content: center;
@@ -105,7 +106,7 @@ nav a:hover { color: var(--accent-hover); }
 }
 
 .service-card {
-    background: var(--bg-light); /* 変数を使用 */
+    background: var(--bg-light); 
     padding: 40px 30px; 
     border-radius: 12px;
     width: 320px; 
@@ -116,40 +117,10 @@ nav a:hover { color: var(--accent-hover); }
 
 .service-card:hover { transform: translateY(-5px); }
 
-.service-card h3 { 
-    color: var(--main-color); /* 変数を使用 */
-    margin-bottom: 20px; 
-    font-size: 1.4em; 
-}
-
-/* フッター */
-/* --- footer の部分をこれに書き換え --- */
-footer {
-    background-color: #333;
-    color: white;
-    padding: 30px 20px;
-    text-align: center;
-    width: 100%;
-    /* 💡 上にマージンを作らない */
-    margin-top: auto; 
-}
-
-/* --- .content の部分をこれに書き換え --- */
-.content { 
-    padding: 40px 20px; 
-    max-width: 900px; 
-    margin: 0 auto; 
-    width: 100%;
-    
-    /* 💡 これが重要！自動で伸びてフッターを下に押し下げます */
-    flex-grow: 1; 
-    
-    box-sizing: border-box;
-    background-color: #ffffff; /* 背景を白で固定 */
-}
+/* 見出しとリストのデザイン */
 .content h1 { 
     font-size: 1.8em; 
-    border-left: 5px solid var(--main-color); /* 変数を使用 */
+    border-left: 5px solid var(--main-color); 
     padding-left: 15px; 
     margin-bottom: 30px; 
     text-align: left; 
@@ -167,41 +138,36 @@ li {
 .back-home { 
     display: inline-block; 
     margin-top: 30px; 
-    color: var(--main-color); /* 変数を使用 */
+    color: var(--main-color); 
     text-decoration: none; 
     font-weight: bold; 
     padding: 10px 20px;
-    border: 1px solid var(--main-color); /* 変数を使用 */
+    border: 1px solid var(--main-color); 
     border-radius: 5px;
     transition: 0.3s;
 }
 
-.back-home:hover {
-    background: var(--main-color); /* 変数を使用 */
-    color: white;
-}
-
-/* --- 5. 活動報告（日記）のデザイン --- */
+/* --- 3. 活動報告（日記）のデザイン --- */
 .blog-item {
     background: #fff;
     border: none;
     margin-bottom: 20px;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* ふんわりした影 */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     transition: transform 0.3s;
-    text-align: left; /* 左寄せに固定 */
+    text-align: left;
 }
 
 .blog-item:hover {
-    transform: translateY(-3px); /* マウスを乗せると少し浮く */
+    transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
 
 summary {
     padding: 20px;
     cursor: pointer;
-    list-style: none; /* デフォルトの矢印を消す */
+    list-style: none;
     display: flex;
     align-items: center;
     gap: 15px;
@@ -210,7 +176,6 @@ summary {
     outline: none;
 }
 
-/* 矢印の代わりに「＋」マークを表示 */
 summary::before {
     content: "＋";
     color: var(--main-color);
@@ -218,10 +183,7 @@ summary::before {
     transition: 0.3s;
 }
 
-/* 開いている時は「＋」を斜めにして「×」っぽくする */
-details[open] summary::before {
-    transform: rotate(45deg);
-}
+details[open] summary::before { transform: rotate(45deg); }
 
 .blog-detail {
     padding: 0 25px 25px;
@@ -230,19 +192,28 @@ details[open] summary::before {
     line-height: 1.7;
 }
 
-/* 💡 画像の装飾：枠線と影をつける */
 .blog-detail img {
     width: 100%;
-    max-width: 500px; /* 少し小さめにして上品に */
+    max-width: 500px;
     display: block;
     margin: 20px auto;
     border-radius: 8px;
-    border: 8px solid #fff; /* 太めの白枠でポラロイド風に */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15); /* 影を少し深く */
-    transform: rotate(-1deg); /* 0.5〜1度だけ傾けると「置いてある感」が出ます */
+    border: 8px solid #fff;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    transform: rotate(-1deg);
 }
 
-/* --- 4. スマホ用の最適化 --- */
+/* --- 4. フッターの設定（一番下に固定） --- */
+footer {
+    background-color: #333;
+    color: white;
+    padding: 30px 20px;
+    text-align: center;
+    width: 100%;
+    flex-shrink: 0; /* フッターが潰れないようにする */
+}
+
+/* --- 5. スマホ用の最適化 --- */
 @media (max-width: 768px) {
     header { padding: 15px 20px; flex-direction: column; gap: 10px; }
     nav a { margin: 0 10px; }

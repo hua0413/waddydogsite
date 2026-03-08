@@ -121,16 +121,14 @@ nav a:hover { color: var(--accent-hover); }
 }
 
 /* フッター */
+/* --- footer の部分をこれに書き換え --- */
 footer {
-    background-color: #333; /* 背景色（今の色に合わせて変えてください） */
+    background-color: #333;
     color: white;
-    padding: 30px 0;
+    padding: 30px 20px;
     text-align: center;
-    
-    /* 💡 ここが重要！ */
-    width: 100%;       /* 横幅を画面いっぱいに */
-    margin: 0;         /* 余計な隙間を消す */
-    display: block;    /* ブロック要素として扱う */
+    width: 100vw;      /* 💡 画面の横幅いっぱいに強制する */
+    margin-left: calc(50% - 50vw); /* センターから画面端まで広げる小技 */
 }
 
 /* --- .content の部分をこれに書き換え --- */

@@ -3,329 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waddy Mail - Mobile Ready</title>
+    <title>メンテナンス中 | WaddyDog Portal</title>
     <style>
         :root {
-            --primary: #0b57d0;
-            --primary-container: #d3e3fd;
-            --on-primary-container: #041e49;
-            --secondary-container: #eaf1fb;
-            --surface: #f6f8fc;
-            --white: #ffffff;
-            --text-main: #1f1f1f;
-            --text-sub: #444746;
-            --border: #c4c7c5;
-            --google-red: #b3261e;
-            --sidebar-width: 280px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        body { 
-            margin: 0; font-family: 'Open Sans', 'Segoe UI', sans-serif; 
-            background-color: var(--surface); display: flex; height: 100vh; 
-            color: var(--text-main); overflow: hidden;
+            --primary-color: #2563eb;
+            --bg-color: #f8fafc;
         }
 
-        /* --- モバイル用ハンバーガーボタン --- */
-        #menu-toggle {
-            display: none; position: fixed; top: 12px; left: 12px; z-index: 1000;
-            background: var(--white); border: 1px solid var(--border); border-radius: 8px;
-            padding: 8px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--bg-color);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #1e293b;
         }
 
-        /* --- サイドバー --- */
-        #sidebar { 
-            width: var(--sidebar-width); padding: 16px; display: flex; 
-            flex-direction: column; gap: 8px; flex-shrink: 0;
-            transition: var(--transition); background: var(--surface);
+        .container {
+            text-align: center;
+            background: white;
+            padding: 60px 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
         }
 
-        /* スマホ時（768px以下）のサイドバースタイル */
-        @media (max-width: 768px) {
-            #menu-toggle { display: block; }
-            #sidebar {
-                position: fixed; left: calc(var(--sidebar-width) * -1); top: 0; bottom: 0;
-                z-index: 999; background: var(--white); box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-            }
-            #sidebar.open { left: 0; }
-            #overlay {
-                display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-                z-index: 998;
-            }
-            #sidebar.open + #overlay { display: block; }
-            #main-container { margin-left: 16px !important; margin-top: 60px !important; }
+        .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: sleep 2s infinite ease-in-out;
         }
 
-        .btn-back {
-            background: transparent; border: none; color: var(--text-sub);
-            cursor: pointer; display: flex; align-items: center; gap: 8px;
-            padding: 12px; border-radius: 20px; font-size: 14px;
+        /* 犬が寝ているようなふわふわした動き */
+        @keyframes sleep {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
-        .compose-btn { 
-            background: var(--primary-container); color: var(--on-primary-container); 
-            border: none; padding: 18px 28px; border-radius: 16px; font-weight: 600; 
-            cursor: pointer; margin: 8px 0 16px 0; display: flex; align-items: center; 
-            gap: 16px; font-size: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            width: fit-content;
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 24px;
         }
 
-        .folder-menu { margin-bottom: 20px; }
-        .folder-item { 
-            padding: 12px 24px; border-radius: 0 24px 24px 0; cursor: pointer; 
-            display: flex; align-items: center; gap: 12px; font-size: 14px; 
-            color: var(--text-sub); margin-right: 16px; 
-        }
-        .folder-item.active { background-color: var(--primary-container); color: var(--on-primary-container); font-weight: bold; }
-
-        #mail-list { flex: 1; overflow-y: auto; }
-        .mail-item { 
-            display: flex; align-items: center; padding: 12px 16px; margin: 4px 12px 4px 0; 
-            border-radius: 0 12px 12px 0; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.03);
-        }
-        .mail-item.unread { background-color: var(--white); font-weight: 700; }
-        
-        .avatar {
-            width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
-            color: white; display: flex; align-items: center; justify-content: center;
-            font-size: 14px; font-weight: bold; margin-right: 12px; flex-shrink: 0;
+        p {
+            line-height: 1.6;
+            color: #64748b;
+            margin-bottom: 30px;
         }
 
-        .sender-info-box { font-size: 14px; width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .subject-preview { font-size: 13px; color: var(--text-sub); margin-left: 12px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* --- メインコンテンツ --- */
-        #main-container { 
-            flex: 1; background: var(--white); margin: 16px 16px 16px 0; 
-            border-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-            display: flex; flex-direction: column; overflow: hidden; 
+        .status-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #d97706;
+            padding: 8px 20px;
+            border-radius: 99px;
+            font-weight: bold;
+            font-size: 14px;
         }
 
-        #view-area, #compose-area, #welcome-area { padding: 32px; display: none; height: 100%; box-sizing: border-box; overflow-y: auto; }
-        @media (max-width: 480px) { #view-area, #compose-area { padding: 20px; } }
-        .active-view { display: block !important; }
-
-        #welcome-area.active-view { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-
-        .mail-header-title { font-size: 22px; margin-bottom: 15px; font-weight: 400; }
-        .mail-meta { 
-            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px;
-            margin-bottom: 24px; padding: 16px; background: var(--surface); border-radius: 12px;
+        .loading-dots {
+            margin-top: 20px;
         }
 
-        .content-image { max-width: 100%; border-radius: 12px; margin-top: 20px; }
-        
-        .input-field { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; }
+        .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            margin: 0 4px;
+            animation: dot-blink 1.4s infinite;
+        }
 
-        .btn-send { background: var(--primary); color: var(--white); border: none; padding: 12px 36px; border-radius: 100px; font-weight: 600; cursor: pointer; float: right; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
 
-        #footer { padding: 16px; border-top: 1px solid rgba(0,0,0,0.05); text-align: center; }
-        #btn-logout { background: none; border: none; color: var(--google-red); text-decoration: underline; cursor: pointer; }
+        @keyframes dot-blink {
+            0%, 80%, 100% { opacity: 0.3; }
+            40% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
-<button id="menu-toggle">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-</button>
-
-<div id="sidebar">
-    <button id="btn-back" class="btn-back">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7 7l-7-7 7-7"/></svg>
-        戻る
-    </button>
-    <button id="btn-compose" class="compose-btn">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-        作成
-    </button>
-    <div class="folder-menu">
-        <div class="folder-item active" id="f-inbox"><span>📥</span> 受信トレイ</div>
-        <div class="folder-item" id="f-sent"><span>📤</span> 送信済み</div>
-    </div>
-    <div id="mail-list"></div>
-    <div id="footer">
-        <div style="font-size: 13px; font-weight: 600; margin-bottom: 4px;"><span id="my-id-display">---</span></div>
-        <button id="btn-logout">ログアウト</button>
-    </div>
-</div>
-<div id="overlay"></div>
-
-<div id="main-container">
-    <div id="welcome-area" class="active-view">
-        <div style="font-size: 60px; margin-bottom: 10px;">📧</div>
-        <h2 style="font-weight: 400;">Waddy Mail</h2>
-        <p style="color:var(--text-sub);">メッセージを選択してください</p>
-    </div>
-
-    <div id="view-area">
-        <h2 id="v-subject" class="mail-header-title">件名</h2>
-        <div class="mail-meta">
-            <span id="v-sender" style="display: flex; align-items: center; font-weight:600;"></span>
-            <span id="v-time" style="font-size:12px; color:var(--text-sub);">--:--</span>
-        </div>
-        <div id="v-body" style="white-space: pre-wrap; line-height: 1.6;"></div>
-    </div>
-
-    <div id="compose-area">
-        <h2 style="font-weight: 500; margin-bottom: 16px;">新規メール</h2>
-        <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">ctrlを押しながら複数選択</div>
-        <select id="toId" multiple class="input-field" style="height: 80px;">
-            <option value="ALL">📢 全員に送信</option>
-        </select>
-        <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">見出し</div>
-        <input type="text" id="subject" class="input-field" placeholder="件名">
-        <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">内容</div>
-        <textarea id="body" class="input-field" rows="8" placeholder="本文 (画像をドロップして添付)"></textarea>
-        <div id="attachment-preview" style="margin-bottom:12px;"></div>
-        <button id="btn-send" class="btn-send">送信</button>
-        <p id="send-status" style="font-size: 13px; margin-top: 10px;"></p>
-    </div>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, updateDoc, doc, serverTimestamp, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyCWP-3yPtIoghRcF0AZwqFTMfNvH1kpZ9o",
-        authDomain: "waddy-portal.firebaseapp.com",
-        projectId: "waddy-portal",
-        storageBucket: "waddy-portal.firebasestorage.app",
-        messagingSenderId: "89997369271",
-        appId: "1:89997369271:web:ea882a0832054a71655232"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const userData = JSON.parse(localStorage.getItem('waddy_user') || '{}');
-    const MY_ID = userData.id;
-    if (!MY_ID) window.location.href = "index.html";
-    document.getElementById('my-id-display').innerText = `${userData.name} (${MY_ID})`;
-
-    let userMap = {}; let allUserIds = []; let currentFolder = "inbox"; let unsubscribe = null; let attachedImageData = null;
-
-    // --- モバイルメニュー制御 ---
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const menuToggle = document.getElementById('menu-toggle');
+<div class="container">
+    <div class="icon">🐶💤</div>
+    <h1>メンテナンス中</h1>
+    <p>
+        より快適なポータルサイトにするため、<br>
+        ワッディードッグが現在、一生懸命整備をしています。<br>
+        終了まで今しばらくお待ちください。
+    </p>
     
-    const toggleSidebar = () => sidebar.classList.toggle('open');
-    const closeSidebar = () => sidebar.classList.remove('open');
+    <div class="status-badge">作業進捗：アップデート中</div>
 
-    menuToggle.onclick = toggleSidebar;
-    overlay.onclick = closeSidebar;
+    <div class="loading-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+</div>
+<script>
+    // 1. GASのURLを定義（他ページと同じもの）
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
 
-    function switchView(viewId) {
-        document.getElementById('welcome-area').classList.remove('active-view');
-        document.getElementById('view-area').classList.remove('active-view');
-        document.getElementById('compose-area').classList.remove('active-view');
-        document.getElementById(viewId).classList.add('active-view');
-        closeSidebar(); // スマホ時はビュー切り替えでメニューを閉じる
-    }
-
-    async function loadUserList() {
+    async function monitorMaintenance() {
         try {
-            const res = await fetch("https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec?mode=list");
-            const users = await res.json();
-            const select = document.getElementById('toId');
-            users.forEach(u => {
-                userMap[u.id] = u.name;
-                allUserIds.push(u.id);
-                if(u.id !== MY_ID) {
-                    const opt = document.createElement('option'); opt.value = u.id; opt.innerText = `${u.name} (${u.id})`;
-                    select.appendChild(opt);
-                }
-            });
-            startListening();
-        } catch(e) { console.error(e); }
-    }
+            const response = await fetch(GAS_URL);
+            const result = await response.json();
 
-    function getSenderHtml(id) {
-        const name = userMap[id] || id;
-        return `<div class="avatar">${name.charAt(0).toUpperCase()}</div><div class="sender-info-box"><b>${name}</b><br><small>(${id})</small></div>`;
-    }
-
-    function startListening() {
-        if (unsubscribe) unsubscribe();
-        const list = document.getElementById('mail-list');
-        let q = currentFolder === "inbox" 
-            ? query(collection(db, "messages"), where("receiverIds", "array-contains-any", [MY_ID, "ALL"]), orderBy("timestamp", "desc"))
-            : query(collection(db, "messages"), where("senderId", "==", MY_ID), orderBy("timestamp", "desc"));
-
-        unsubscribe = onSnapshot(q, (sn) => {
-            list.innerHTML = "";
-            sn.forEach(d => {
-                const data = d.data();
-                const item = document.createElement('div');
-                item.className = `mail-item ${currentFolder==="inbox" && !(data.readBy?.includes(MY_ID)) ? 'unread' : ''}`;
-                item.innerHTML = getSenderHtml(data.senderId) + `<div class="subject-preview">${data.subject}</div>`;
-                item.onclick = () => showMail(d.id, data);
-                list.appendChild(item);
-            });
-        });
-    }
-
-    function showMail(docId, data) {
-        switchView('view-area');
-        document.getElementById('v-subject').innerText = data.subject;
-        document.getElementById('v-sender').innerHTML = getSenderHtml(data.senderId);
-        document.getElementById('v-time').innerText = data.timestamp?.toDate().toLocaleString() || "";
-        let body = data.body.replace(/(https?:\/\/[\w\/:%#\$&\?\(\)~\.=\+\-]+)/g, '<a href="$1" target="_blank">$1</a>');
-        if(data.image) body += `<br><img src="${data.image}" class="content-image">`;
-        document.getElementById('v-body').innerHTML = body;
-        if (currentFolder === "inbox" && !(data.readBy?.includes(MY_ID))) {
-            let rb = data.readBy || []; rb.push(MY_ID);
-            updateDoc(doc(db, "messages", docId), { readBy: rb });
+            // 2. もしメンテナンスが「解除（false）」されていたら
+            if (result.maintenance === false) {
+                // 自動的にホーム画面へリダイレクト！
+                window.location.href = "index.html";
+            }
+        } catch (e) {
+            console.error("ステータスチェック失敗", e);
         }
     }
 
-    // --- 画像添付 & 送信 ---
-    const bodyArea = document.getElementById('body');
-    bodyArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file?.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX = 1000; let w = img.width, h = img.height;
-                    if (w > MAX) { h *= MAX/w; w = MAX; }
-                    canvas.width = w; canvas.height = h;
-                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    attachedImageData = canvas.toDataURL('image/jpeg', 0.6);
-                    document.getElementById('attachment-preview').innerHTML = `<img src="${attachedImageData}" style="height:80px; border-radius:8px;">`;
-                };
-                img.src = ev.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    // 3. 5秒ごとにスプレッドシートの状態を確認する（自動更新）
+    // 数値を小さくすればもっと早く反応しますが、GASの負荷を考えて5秒（5000ms）程度がおすすめ
+    setInterval(monitorMaintenance, 8000);
 
-    document.getElementById('btn-send').onclick = async () => {
-        const to = Array.from(document.getElementById('toId').selectedOptions).map(o => o.value);
-        const sub = document.getElementById('subject').value;
-        const msg = document.getElementById('body').value;
-        if(!to.length || !sub || !msg) return alert("入力してください");
-        const st = document.getElementById('send-status');
-        st.innerText = "送信中...";
-        try {
-            let targets = to.includes("ALL") ? allUserIds.filter(id => id!==MY_ID) : to;
-            await addDoc(collection(db, "messages"), { senderId: MY_ID, receiverIds: targets, subject: sub, body: msg, image: attachedImageData, timestamp: serverTimestamp(), readBy: [] });
-            st.innerText = "✅ 送信完了";
-            setTimeout(() => { document.getElementById('subject').value=""; document.getElementById('body').value=""; attachedImageData=null; document.getElementById('attachment-preview').innerHTML=""; switchView('welcome-area'); st.innerText=""; }, 1000);
-        } catch(e) { st.innerText = "❌ 送信失敗"; }
-    };
-
-    document.getElementById('f-inbox').onclick = () => { currentFolder="inbox"; document.getElementById('f-inbox').classList.add('active'); document.getElementById('f-sent').classList.remove('active'); startListening(); switchView('welcome-area'); };
-    document.getElementById('f-sent').onclick = () => { currentFolder="sent"; document.getElementById('f-sent').classList.add('active'); document.getElementById('f-inbox').classList.remove('active'); startListening(); switchView('welcome-area'); };
-    document.getElementById('btn-compose').onclick = () => switchView('compose-area');
-    document.getElementById('btn-back').onclick = () => window.location.href = "login.html";
-    document.getElementById('btn-logout').onclick = () => { localStorage.clear(); window.location.href = "index.html"; };
-
-    loadUserList();
+    // ページ読み込み時にも一度実行
+    window.addEventListener('DOMContentLoaded', monitorMaintenance);
 </script>
 </body>
 </html>

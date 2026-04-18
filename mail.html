@@ -3,47 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waddy Mail - 完全版</title>
+    <title>Waddy Mail</title>
     <style>
-        :root { --google-blue: #1a73e8; --bg-gray: #f6f8fc; --border: #e0e2e6; }
-        body { margin: 0; font-family: sans-serif; background: var(--bg-gray); display: flex; height: 100vh; }
-        #sidebar { width: 280px; background: white; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 10px; }
-        .compose-btn { background: #c2e7ff; border: none; padding: 18px; border-radius: 16px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        :root {
+            --google-blue: #1a73e8;
+            --google-red: #ea4335;
+            --sidebar-width: 260px;
+            --text-main: #202124;
+            --text-sub: #5f6368;
+            --bg-body: #f6f8fc;
+            --border-color: #e0e2e6;
+        }
+        
+        body {
+            margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body); display: flex; height: 100vh; color: var(--text-main);
+        }
+
+        /* --- サイドバー --- */
+        #sidebar {
+            width: var(--sidebar-width); padding: 12px; display: flex; flex-direction: column;
+        }
+        .compose-btn {
+            background: #c2e7ff; color: #001d35; border: none; padding: 18px 24px;
+            border-radius: 16px; font-weight: 600; cursor: pointer; margin: 8px 0 16px 0;
+            display: flex; align-items: center; gap: 12px; font-size: 14px;
+            transition: box-shadow 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .compose-btn:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        
         #mail-list { flex: 1; overflow-y: auto; }
-        .mail-item { padding: 12px; border-bottom: 1px solid #f1f3f4; cursor: pointer; font-size: 14px; }
-        .mail-item.unread { font-weight: bold; background: #fff; border-left: 4px solid var(--google-blue); }
-        #main { flex: 1; display: flex; flex-direction: column; background: white; margin: 8px; border-radius: 16px; overflow: hidden; }
-        #view-area, #compose-area { padding: 30px; display: none; }
+        .mail-item {
+            display: flex; align-items: center; padding: 10px 16px; margin: 2px 0;
+            border-radius: 0 24px 24px 0; cursor: pointer; position: relative;
+            background-color: #f2f5f7; /* 既読時の標準 */
+            transition: background 0.15s;
+        }
+        .mail-item:hover { background-color: #e8eaed; }
+        
+        /* 未読スタイル */
+        .mail-item.unread { background-color: #ffffff; font-weight: bold; }
+        .mail-item.unread::after {
+            content: ""; position: absolute; right: 16px; width: 8px; height: 8px;
+            background: var(--google-blue); border-radius: 50%;
+        }
+
+        .sender-id { font-size: 14px; width: 80px; overflow: hidden; text-overflow: ellipsis; }
+        .subject-preview { font-size: 13px; color: var(--text-sub); margin-left: 10px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* --- メインコンテンツ --- */
+        #main-container {
+            flex: 1; background: white; margin: 8px 8px 8px 0; border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        #view-area, #compose-area { padding: 40px; display: none; height: 100%; box-sizing: border-box; overflow-y: auto; }
         .active { display: block !important; }
-        input, textarea, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
-        button.send { background: var(--google-blue); color: white; border: none; padding: 10px 24px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+
+        /* 件名エリア */
+        .mail-header-title { font-size: 22px; margin-bottom: 20px; font-weight: 400; color: #1f1f1f; }
+        .mail-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .sender-info { font-weight: bold; font-size: 14px; }
+        .timestamp { font-size: 12px; color: var(--text-sub); }
+
+        /* フォーム入力 */
+        .form-group { margin-bottom: 12px; }
+        select, input, textarea {
+            width: 100%; border: none; border-bottom: 1px solid var(--border-color);
+            padding: 12px 8px; font-size: 14px; outline: none; transition: border-color 0.2s;
+        }
+        select:focus, input:focus { border-bottom: 2px solid var(--google-blue); }
+        textarea { border: 1px solid var(--border-color); border-radius: 8px; margin-top: 10px; resize: none; }
+
+        .btn-send {
+            background: var(--google-blue); color: white; border: none; padding: 10px 28px;
+            border-radius: 24px; font-weight: 600; cursor: pointer; float: right; margin-top: 10px;
+        }
+        .btn-send:hover { background: #1557b0; }
+
+        #footer { padding: 10px; font-size: 12px; color: var(--text-sub); text-align: center; }
     </style>
 </head>
 <body>
 
 <div id="sidebar">
-    <button id="btn-compose" class="compose-btn">＋ 作成</button>
+    <button id="btn-compose" class="compose-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>
+        作成
+    </button>
     <div id="mail-list">読み込み中...</div>
-    <div id="footer" style="font-size:10px; color:gray; padding:10px; border-top:1px solid #eee;">
+    <div id="footer">
         User: <span id="my-id-display">---</span>
     </div>
 </div>
 
-<div id="main">
+<div id="main-container">
     <div id="view-area">
-        <h2 id="v-subject">件名</h2>
-        <p id="v-sender" style="font-weight:bold;"></p>
-        <hr>
-        <div id="v-body" style="white-space: pre-wrap;"></div>
+        <h2 id="v-subject" class="mail-header-title">件名</h2>
+        <div class="mail-meta">
+            <span id="v-sender" class="sender-info">送信者</span>
+            <span id="v-time" class="timestamp">--:--</span>
+        </div>
+        <div id="v-body" style="white-space: pre-wrap; line-height: 1.6; color: #3c4043;"></div>
     </div>
 
     <div id="compose-area">
-        <h2>新しいメッセージ</h2>
-        <select id="toId"><option value="">宛先を選択...</option></select>
-        <input type="text" id="subject" placeholder="件名">
-        <textarea id="body" rows="10" placeholder="メッセージを入力..."></textarea>
-        <button id="btn-send" class="send">送信</button>
-        <p id="send-status"></p>
+        <h2 style="font-weight: 500; margin-bottom: 30px;">新規メッセージ</h2>
+        <div class="form-group">
+            <select id="toId"><option value="">宛先を選択...</option></select>
+        </div>
+        <div class="form-group">
+            <input type="text" id="subject" placeholder="件名">
+        </div>
+        <textarea id="body" rows="12" placeholder="メッセージを入力..."></textarea>
+        <button id="btn-send" class="btn-send">送信</button>
+        <p id="send-status" style="font-size: 12px; margin-top: 15px;"></p>
     </div>
 </div>
 
@@ -63,19 +137,16 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- 1. ログインユーザーの確定 (ここがundefinedだとエラーになる) ---
     const localData = localStorage.getItem('waddy_user');
-    const userData = localData ? JSON.parse(localData) : { id: "waddy01", name: "テストユーザー" };
+    const userData = localData ? JSON.parse(localData) : { id: "waddy01", name: "ゲスト" };
     const MY_ID = userData.id || "waddy01"; 
 
     document.getElementById('my-id-display').innerText = `${userData.name} (${MY_ID})`;
 
-    // --- 2. 宛先リスト取得 (GAS) ---
     async function loadUserList() {
         const select = document.getElementById('toId');
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec?mode=list"; 
         try {
-            if (GAS_URL.includes("ここに")) throw new Error("URL未設定");
             const res = await fetch(GAS_URL);
             const users = await res.json();
             users.forEach(u => {
@@ -86,66 +157,54 @@
                 }
             });
         } catch(e) {
-            console.warn("GAS読み込みスキップ:", e.message);
-            // 失敗時の予備
-            const opt = document.createElement('option');
-            opt.value = "waddy01"; opt.innerText = "自分宛 (waddy01)";
-            select.appendChild(opt);
+            console.warn("GAS読み込みスキップ");
         }
     }
 
-    // --- 3. 受信監視 (MY_IDが確定してから実行) ---
     function startListening() {
         const q = query(collection(db, "messages"), where("receiverId", "==", MY_ID), orderBy("timestamp", "desc"));
         onSnapshot(q, (snapshot) => {
             const list = document.getElementById('mail-list');
             list.innerHTML = "";
-            if (snapshot.empty) {
-                list.innerHTML = '<p style="text-align:center; color:gray;">メールはありません</p>';
-                return;
-            }
             snapshot.forEach(d => {
                 const data = d.data();
                 const item = document.createElement('div');
                 item.className = `mail-item ${data.isRead ? '' : 'unread'}`;
-                item.innerHTML = `<div>${data.senderId}</div><div style="font-size:12px; color:gray;">${data.subject}</div>`;
+                item.innerHTML = `
+                    <div class="sender-id">${data.senderId}</div>
+                    <div class="subject-preview">${data.subject}</div>
+                `;
                 item.addEventListener('click', () => showMail(d.id, data));
                 list.appendChild(item);
             });
-        }, (err) => {
-            console.error("受信エラー:", err);
-            // インデックスエラーが出たらここにURLが出る
         });
     }
 
-    // --- 4. 画面切り替え & 送信処理 (EventListenerで登録) ---
-    
-    // メール詳細表示
     async function showMail(docId, data) {
         document.getElementById('compose-area').classList.remove('active');
         document.getElementById('view-area').classList.add('active');
         document.getElementById('v-subject').innerText = data.subject;
         document.getElementById('v-sender').innerText = `From: ${data.senderId}`;
         document.getElementById('v-body').innerText = data.body;
+        document.getElementById('v-time').innerText = data.timestamp?.toDate().toLocaleString() || "";
+        
         if (!data.isRead) {
             await updateDoc(doc(db, "messages", docId), { isRead: true });
         }
     }
 
-    // 「作成」ボタン
     document.getElementById('btn-compose').addEventListener('click', () => {
         document.getElementById('view-area').classList.remove('active');
         document.getElementById('compose-area').classList.add('active');
     });
 
-    // 「送信」ボタン
     document.getElementById('btn-send').addEventListener('click', async () => {
         const toId = document.getElementById('toId').value;
         const subject = document.getElementById('subject').value;
         const body = document.getElementById('body').value;
         const status = document.getElementById('send-status');
 
-        if (!toId || !subject || !body) return alert("全部入力してください");
+        if (!toId || !subject || !body) return alert("未入力項目があります");
 
         try {
             status.innerText = "送信中...";
@@ -157,18 +216,18 @@
                 timestamp: serverTimestamp(),
                 isRead: false
             });
-            status.innerText = "✅ 送信完了";
+            status.innerText = "✅ 送信されました";
             setTimeout(() => {
                 status.innerText = "";
+                document.getElementById('subject').value = "";
+                document.getElementById('body').value = "";
                 document.getElementById('compose-area').classList.remove('active');
             }, 1000);
         } catch(e) { status.innerText = "❌ 送信失敗"; }
     });
 
-    // 起動
     loadUserList();
     startListening();
-
 </script>
 </body>
 </html>

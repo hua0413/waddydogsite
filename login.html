@@ -244,11 +244,30 @@
 
 <script>
     /* --- login.html の scriptの最初 --- */
-window.addEventListener('DOMContentLoaded', () => {
-    const savedUser = JSON.parse(localStorage.getItem('waddy_user'));
-    if (savedUser) {
-        // すでにログイン情報があれば、フォームを隠してマイページを表示
-        showMyPage(savedUser);
+window.addEventListener('DOMContentLoaded', async () => {
+    const savedId = localStorage.getItem('waddy_id');
+    const savedPass = localStorage.getItem('waddy_pass'); // ログイン時にパスワードも保存するようにします
+
+    if (savedId && savedPass) {
+        // 保存されたIDとパスで、こっそり再認証して最新データを取る
+        try {
+            const response = await fetch(`${GAS_URL}?id=${savedId}&pass=${savedPass}`);
+            const result = await response.json();
+            if (result.success) {
+                // 最新のデータで画面を作る
+                const userData = {
+                    name: result.name,
+                    role: result.role,
+                    img: result.img || "https://via.placeholder.com/150",
+                    message: result.message,
+                    progress: result.progress
+                };
+                localStorage.setItem('waddy_user', JSON.stringify(userData));
+                showMyPage(userData);
+            }
+        } catch (e) {
+            console.error("最新データの取得に失敗しました");
+        }
     }
 });
 

@@ -255,6 +255,17 @@
             const result = await response.json();
 
             if (result.success) {
+            // ブラウザにログイン情報を保存（ここを追加！）
+            const userData = {
+                name: result.name,
+                role: result.role,
+                img: result.img || "https://via.placeholder.com/150",
+                message: result.message,
+                progress: result.progress
+            };
+                localStorage.setItem('waddy_user', JSON.stringify(userData));
+
+            // その後の表示処理
                 document.getElementById("login-form").classList.add("hidden");
                 document.getElementById("staff-page").classList.remove("hidden");
                 

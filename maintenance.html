@@ -316,7 +316,7 @@
             await addDoc(collection(db, "messages"), { senderId: MY_ID, receiverIds: targets, subject: sub, body: msg, image: attachedImageData, timestamp: serverTimestamp(), readBy: [] });
             st.innerText = "✅ 送信完了";
             setTimeout(() => { document.getElementById('subject').value=""; document.getElementById('body').value=""; attachedImageData=null; document.getElementById('attachment-preview').innerHTML=""; switchView('welcome-area'); st.innerText=""; }, 1000);
-        } catch(e) { st.innerText = "❌ 失敗"; }
+        } catch(e) { st.innerText = "❌ 送信失敗"; }
     };
 
     document.getElementById('f-inbox').onclick = () => { currentFolder="inbox"; document.getElementById('f-inbox').classList.add('active'); document.getElementById('f-sent').classList.remove('active'); startListening(); switchView('welcome-area'); };

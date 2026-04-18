@@ -44,6 +44,9 @@
         <a href="index.html" class="back-home">← ホームに戻る</a>
     </div>
     <script>
+        // 1. 【ここを追加】一番最初にURLを宣言する
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec";
+        
         async function checkMaintenance() {
     try {
         const response = await fetch(GAS_URL);

@@ -48,7 +48,23 @@
         <p>&copy; 2026 ワッディードックプロジェクト</p>
         <p style="opacity: 0.7;">※この団体は架空であり、実際の活動はしておりません。</p>
     </footer>
+<script>
+// ページが読み込まれたら実行
+window.addEventListener('DOMContentLoaded', () => {
+    const userData = JSON.parse(localStorage.getItem('waddy_user'));
+    const authArea = document.getElementById('auth-button-area');
 
+    if (userData && authArea) {
+        // ログイン情報があれば、ボタンを「アイコン＋名前」に書き換える
+        authArea.innerHTML = `
+            <a href="login.html" class="user-chip">
+                <img src="${userData.img}" alt="avatar">
+                <span>${userData.name}</span>
+            </a>
+        `;
+    }
+});
+</script>
 </body>
 </html>
 

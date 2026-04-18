@@ -43,6 +43,23 @@
         </ul>
         <a href="index.html" class="back-home">← ホームに戻る</a>
     </div>
+    <script>
+window.addEventListener('DOMContentLoaded', () => {
+    // ブラウザの記憶を確認
+    const userData = JSON.parse(localStorage.getItem('waddy_user'));
+    const authArea = document.getElementById('auth-button-area');
+
+    if (userData && authArea) {
+        // ログインしていれば、ボタンをアイコンと名前に書き換える
+        authArea.innerHTML = `
+            <a href="login.html" class="user-chip">
+                <img src="${userData.img}" alt="avatar">
+                <span>${userData.name}</span>
+            </a>
+        `;
+    }
+});
+</script>
 </body>
 </html>
 

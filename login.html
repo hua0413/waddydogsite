@@ -243,59 +243,42 @@
 </div>
 
 <script>
-    /* --- login.html の scriptの最初 --- */
-window.addEventListener('DOMContentLoaded', async () => {
-    const savedUser = JSON.parse(localStorage.getItem('waddy_user'));
-    const savedId = localStorage.getItem('waddy_id');
-    const savedPass = localStorage.getItem('waddy_pass'); // ログイン時にパスワードも保存するようにします
-    if (savedUser) {
-        // すでにログイン情報があれば、フォームを隠してマイページを表示
-        showMyPage(savedUser);
-    }
-    if (savedId && savedPass) {
-        // 保存されたIDとパスで、こっそり再認証して最新データを取る
-        try {
-            const response = await fetch(`${GAS_URL}?id=${savedId}&pass=${savedPass}`);
-            const result = await response.json();
-            if (result.success) {
-                // 最新のデータで画面を作る
-                const userData = {
-                    name: result.name,
-                    role: result.role,
-                    img: result.img || "https://via.placeholder.com/150",
-                    message: result.message,
-                    progress: result.progress
-                };
-                localStorage.setItem('waddy_user', JSON.stringify(userData));
-                showMyPage(userData);
-            }
-        } catch (e) {
-            console.error("最新データの取得に失敗しました");
-        }
-    }
-});
-
-// マイページを表示する共通関数
-function showMyPage(user) {
-    document.getElementById("login-form").classList.add("hidden");
-    document.getElementById("staff-page").classList.remove("hidden");
-    
-    document.getElementById("welcome-msg").innerText = user.name + " さん";
-    document.getElementById("user-role").innerText = user.role || "社員";
-    document.getElementById("user-msg").innerText = user.message || "指示なし";
-    document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
-    
-    // 進捗バー
-    const p = user.progress || 0;
-    setTimeout(() => {
-        const fill = document.getElementById("progress-fill");
-        if(fill) fill.style.width = p + "%";
-        const text = document.getElementById("progress-text");
-        if(text) text.innerText = p;
-    }, 300);
-}
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
 
+    // ページ読み込み時の処理
+    window.addEventListener('DOMContentLoaded', async () => {
+        const savedUser = JSON.parse(localStorage.getItem('waddy_user'));
+        const savedId = localStorage.getItem('waddy_id');
+        const savedPass = localStorage.getItem('waddy_pass');
+
+        // 1. まずはブラウザに保存されているデータで速攻表示（待ち時間をなくす）
+        if (savedUser) {
+            showMyPage(savedUser);
+        }
+
+        // 2. 次に、こっそりスプレッドシートから最新データを取って更新する
+        if (savedId && savedPass) {
+            try {
+                const response = await fetch(`${GAS_URL}?id=${savedId}&pass=${savedPass}`);
+                const result = await response.json();
+                if (result.success) {
+                    const userData = {
+                        name: result.name,
+                        role: result.role,
+                        img: result.img || "https://via.placeholder.com/150",
+                        message: result.message,
+                        progress: result.progress
+                    };
+                    localStorage.setItem('waddy_user', JSON.stringify(userData));
+                    showMyPage(userData); // 最新データで上書き反映
+                }
+            } catch (e) {
+                console.error("最新データの同期に失敗しました");
+            }
+        }
+    });
+
+    // ログイン処理
     async function login() {
         const id = document.getElementById("userId").value;
         const pass = document.getElementById("userPass").value;
@@ -312,86 +295,84 @@ function showMyPage(user) {
             const result = await response.json();
 
             if (result.success) {
-                localStorage.setItem('waddy_id', id);       // IDを保存
-                localStorage.setItem('waddy_pass', pass);   // 【追加】パスワードを保存
-            const userData = {
-                name: result.name,
-                role: result.role,
-                img: result.img || "https://via.placeholder.com/150",
-                message: result.message,
-                progress: result.progress
-            };
+                // データの保存
+                localStorage.setItem('waddy_id', id);
+                localStorage.setItem('waddy_pass', pass);
+                const userData = {
+                    name: result.name,
+                    role: result.role,
+                    img: result.img || "https://via.placeholder.com/150",
+                    message: result.message,
+                    progress: result.progress
+                };
                 localStorage.setItem('waddy_user', JSON.stringify(userData));
-                localStorage.setItem('waddy_id', id); // これを追加！
 
-            // その後の表示処理
-                document.getElementById("login-form").classList.add("hidden");
-                document.getElementById("staff-page").classList.remove("hidden");
-                
-                // データをセット
-                document.getElementById("welcome-msg").innerText = result.name + " さん";
-                document.getElementById("user-role").innerText = result.role || "一般社員";
-                document.getElementById("user-msg").innerText = result.message || "現在、特別な指示はありません。";
-                document.getElementById("user-img").src = result.img || "https://via.placeholder.com/150";
-                
-                // バーのアニメーション
-                const p = result.progress || 0;
-                setTimeout(() => {
-                    document.getElementById("progress-fill").style.width = p + "%";
-                    document.getElementById("progress-text").innerText = p;
-                }, 300);
-
+                // 画面切り替え
+                showMyPage(userData);
             } else {
                 error.innerText = result.message;
             }
         } catch (e) {
-            error.innerText = "通信エラー";
+            error.innerText = "通信エラーが発生しました";
         } finally {
             btn.disabled = false;
             btn.innerText = "ログイン";
         }
     }
-    function logout() {
-    // 1. ブラウザに保存した社員情報を完全に削除する
-    localStorage.removeItem('waddy_user');
 
-    // 2. 念のためすべての保存データをクリアしたい場合はこちら（オプション）
-    // localStorage.clear();
-
-    // 3. ホーム画面に戻す
-    // これにより、index.html側でも「ログイン情報なし」と判定され、
-    // 右上のボタンが「社員専用」に戻ります。
-    window.location.href = "index.html";
-}
-    async function updateIcon() {
-    const newUrl = document.getElementById('new-img-url').value;
-    const userData = JSON.parse(localStorage.getItem('waddy_user'));
-    const savedId = localStorage.getItem('waddy_id'); // ログイン時に保存しておく必要があります
-
-    if (!newUrl) return alert("URLを入力してください");
-
-    try {
-        // GASに保存を依頼
-        const response = await fetch(GAS_URL, {
-            method: 'POST',
-            body: JSON.stringify({ id: savedId, imgUrl: newUrl })
-        });
-        const result = await response.json();
-
-        if (result.success) {
-    // ブラウザの記憶を最新のURLで上書き
-    let userData = JSON.parse(localStorage.getItem('waddy_user'));
-    userData.img = newUrl; 
-    localStorage.setItem('waddy_user', JSON.stringify(userData));
-    
-    document.getElementById('user-img').src = newUrl;
-    alert("アイコンを更新しました！");
-}
-    } catch (e) {
-        alert("更新に失敗しました。");
-        console.error(e);
+    // マイページ表示（共通）
+    function showMyPage(user) {
+        document.getElementById("login-form").classList.add("hidden");
+        document.getElementById("staff-page").classList.remove("hidden");
+        
+        document.getElementById("welcome-msg").innerText = user.name + " さん";
+        document.getElementById("user-role").innerText = user.role || "社員";
+        document.getElementById("user-msg").innerText = user.message || "指示なし";
+        document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
+        
+        const p = user.progress || 0;
+        setTimeout(() => {
+            const fill = document.getElementById("progress-fill");
+            if(fill) fill.style.width = p + "%";
+            const text = document.getElementById("progress-text");
+            if(text) text.innerText = p;
+        }, 300);
     }
-}
+
+    // アイコン更新
+    async function updateIcon() {
+        const newUrl = document.getElementById('new-img-url').value;
+        const savedId = localStorage.getItem('waddy_id');
+
+        if (!newUrl) return alert("URLを入力してください");
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ id: savedId, imgUrl: newUrl })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                let userData = JSON.parse(localStorage.getItem('waddy_user'));
+                userData.img = newUrl; 
+                localStorage.setItem('waddy_user', JSON.stringify(userData));
+                
+                document.getElementById('user-img').src = newUrl;
+                alert("アイコンを更新しました！");
+            }
+        } catch (e) {
+            alert("更新に失敗しました。");
+        }
+    }
+
+    // ログアウト
+    function logout() {
+        localStorage.removeItem('waddy_user');
+        localStorage.removeItem('waddy_id');
+        localStorage.removeItem('waddy_pass');
+        window.location.href = "index.html";
+    }
 </script>
 </body>
 </html>

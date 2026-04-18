@@ -233,47 +233,54 @@ document.getElementById('btn-back').addEventListener('click', () => {
 });
 
    // 送信ボタンのクリックイベント
-    document.getElementById('btn-send').addEventListener('click', async () => {
-        const selectElement = document.getElementById('toId');
-        // 選ばれた項目の値を配列にする
-        const selectedOptions = Array.from(selectElement.selectedOptions).map(opt => opt.value);
-        const subject = document.getElementById('subject').value;
-        const body = document.getElementById('body').value;
-        const status = document.getElementById('send-status');
+// 送信ボタンの処理
+document.getElementById('btn-send').addEventListener('click', async () => {
+    // --- 💡 ここで「今」のログイン情報を直接取りに行く ---
+    const currentLocalData = localStorage.getItem('waddy_user');
+    if (!currentLocalData) {
+        alert("ログイン情報が見つかりません。一度ログインし直してください。");
+        window.location.href = "index.html";
+        return;
+    }
+    
+    const currentStatus = JSON.parse(currentLocalData);
+    const senderId = currentStatus.id; // 送信直前に確定させる
 
-        if (!MY_ID) return alert("送信者IDが不明です。再ログインしてください。");
-        if (selectedOptions.length === 0 || !subject || !body) return alert("入力漏れがあります");
+    // IDが異常な値（undefined文字列など）じゃないか厳重にチェック
+    if (!senderId || senderId === "undefined" || senderId === "null") {
+        alert("ログインIDが正しく認識されていません。再ログインが必要です。");
+        return;
+    }
 
-        try {
-            status.innerText = "送信中...";
+    // --- 以下、送信処理 ---
+    const selectElement = document.getElementById('toId');
+    const selectedOptions = Array.from(selectElement.selectedOptions).map(opt => opt.value);
+    const subject = document.getElementById('subject').value;
+    const body = document.getElementById('body').value;
+    const status = document.getElementById('send-status');
 
-            // --- 💡 ここがポイント！ ---
-            let targetIds;
-            if (selectedOptions.includes("ALL")) {
-                // 「全員に送信」が選ばれていたら、GASから取得済みの全ユーザーIDリストを使う
-                // 自分を除外したい場合は .filter(id => id !== MY_ID) をつける
-                targetIds = allUserIds; 
-            } else {
-                // 個別に選ばれていたらそのリストを使う
-                targetIds = selectedOptions;
-            }
+    if (selectedOptions.length === 0 || !subject || !body) return alert("入力漏れがあります");
 
-            await addDoc(collection(db, "messages"), {
-                senderId: MY_ID,
-                receiverIds: targetIds, // ここに全員のIDが配列 [ "id1", "id2", "id3"... ] で入る
-                subject: subject,
-                body: body,
-                timestamp: serverTimestamp(),
-                readBy: [] 
-            });
-            
-            status.innerText = "✅ 送信完了";
-            // ...（リセット処理などはそのまま）
-        } catch(e) { 
-            status.innerText = "❌ 送信失敗"; 
-            console.error("エラー詳細:", e); 
-        }
-    });
+    try {
+        status.innerText = "送信中...";
+        const targetIds = selectedOptions.includes("ALL") ? allUserIds : selectedOptions;
+
+        await addDoc(collection(db, "messages"), {
+            senderId: senderId, // 直前に取得したIDを使う！
+            receiverIds: targetIds,
+            subject: subject,
+            body: body,
+            timestamp: serverTimestamp(),
+            readBy: []
+        });
+        
+        status.innerText = "✅ 送信完了";
+        // リセット処理...
+    } catch(e) {
+        status.innerText = "❌ 送信失敗";
+        console.error(e);
+    }
+});
 
     loadUserList();
     startListening();

@@ -208,11 +208,42 @@
     </aside>
 
     <main class="main-content">
-        <div class="menu-item" id="menu-mail" style="cursor: pointer; padding: 20px; background: white; border-radius: 15px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-    <div style="font-size: 40px;">✉️</div>
-    <div style="font-weight: bold; margin-top: 10px;">社内メール</div>
-    <div id="unread-count" style="display: none; background: #ea4335; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; margin: -50px auto 30px auto; line-height: 20px;">0</div>
+        <div id="pc-only-area" style="display: none;">
+  <button onclick="location.href='mail.html'" class="btn-primary">
+    社内メールにアクセス
+  </button>
 </div>
+
+<div id="mobile-warning" style="display: none; color: #b3261e; background: #fce8e6; padding: 10px; border-radius: 8px; font-size: 14px; margin-top: 10px;">
+  ⚠️ メール機能はPC専用です。PCからログインしてください。
+</div>
+
+<script>
+function checkDevice() {
+    const pcArea = document.getElementById('pc-only-area');
+    const mobileWarning = document.getElementById('mobile-warning');
+
+    // 判定基準1: 画面の横幅（768px以下はスマホ/タブレットとみなす）
+    const isSmallScreen = window.innerWidth <= 768;
+    
+    // 判定基準2: タッチ操作ができるデバイスか（より正確にスマホを判定）
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+    if (isSmallScreen || isTouchDevice) {
+        // スマホの場合：ボタンを隠して警告を出す
+        pcArea.style.display = 'none';
+        mobileWarning.style.display = 'block';
+    } else {
+        // PCの場合：ボタンを表示する
+        pcArea.style.display = 'block';
+        mobileWarning.style.display = 'none';
+    }
+}
+
+// 読み込み時と画面サイズ変更時に実行
+window.onload = checkDevice;
+window.onresize = checkDevice;
+</script>
 
         <div class="status-card">
             <h3 style="margin-top: 0;">✉️ あなたへの個別指示</h3>

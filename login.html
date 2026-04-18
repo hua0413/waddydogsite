@@ -233,6 +233,12 @@
                 <li>投稿は考えてリクエストするように</li>
             </ul>
         </div>
+        <div class="status-card" style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px;">
+    <h3>⚙️ プロフィール設定</h3>
+    <p style="font-size: 13px; color: #666;">アイコン画像のURLを入力してください</p>
+    <input type="text" id="new-img-url" placeholder="https://example.com/image.jpg" style="font-size: 14px;">
+    <button onclick="updateIcon()" class="btn" style="background: #34a853; margin-top: 5px;">アイコンを更新</button>
+</div>
     </main>
 </div>
 
@@ -283,7 +289,6 @@ function showMyPage(user) {
             const result = await response.json();
 
             if (result.success) {
-            // ブラウザにログイン情報を保存（ここを追加！）
             const userData = {
                 name: result.name,
                 role: result.role,
@@ -292,6 +297,7 @@ function showMyPage(user) {
                 progress: result.progress
             };
                 localStorage.setItem('waddy_user', JSON.stringify(userData));
+                localStorage.setItem('waddy_id', id); // これを追加！
 
             // その後の表示処理
                 document.getElementById("login-form").classList.add("hidden");
@@ -331,6 +337,35 @@ function showMyPage(user) {
     // これにより、index.html側でも「ログイン情報なし」と判定され、
     // 右上のボタンが「社員専用」に戻ります。
     window.location.href = "index.html";
+}
+    async function updateIcon() {
+    const newUrl = document.getElementById('new-img-url').value;
+    const userData = JSON.parse(localStorage.getItem('waddy_user'));
+    const savedId = localStorage.getItem('waddy_id'); // ログイン時に保存しておく必要があります
+
+    if (!newUrl) return alert("URLを入力してください");
+
+    try {
+        // GASに保存を依頼
+        const response = await fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify({ id: savedId, imgUrl: newUrl })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            // ブラウザの記憶も更新
+            userData.img = newUrl;
+            localStorage.setItem('waddy_user', JSON.stringify(userData));
+            
+            // 画面のアイコンを即座に書き換える
+            document.getElementById('user-img').src = newUrl;
+            alert("アイコンを更新しました！ホーム画面でも反映されます。");
+        }
+    } catch (e) {
+        alert("更新に失敗しました。");
+        console.error(e);
+    }
 }
 </script>
 </body>

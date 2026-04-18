@@ -204,7 +204,7 @@
         <h2 id="welcome-msg" style="margin: 10px 0;">名前 さん</h2>
         <p style="color: #64748b; font-size: 14px;">WaddyDog Projectメンバー</p>
         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-        <button onclick="location.reload()" class="btn" style="background: #64748b; width: 100%;">ログアウト</button>
+        <button onclick="logout()" class="btn" style="background: #64748b; width: 100%;">ログアウト</button>
     </aside>
 
     <main class="main-content">
@@ -237,6 +237,34 @@
 </div>
 
 <script>
+    /* --- login.html の scriptの最初 --- */
+window.addEventListener('DOMContentLoaded', () => {
+    const savedUser = JSON.parse(localStorage.getItem('waddy_user'));
+    if (savedUser) {
+        // すでにログイン情報があれば、フォームを隠してマイページを表示
+        showMyPage(savedUser);
+    }
+});
+
+// マイページを表示する共通関数
+function showMyPage(user) {
+    document.getElementById("login-form").classList.add("hidden");
+    document.getElementById("staff-page").classList.remove("hidden");
+    
+    document.getElementById("welcome-msg").innerText = user.name + " さん";
+    document.getElementById("user-role").innerText = user.role || "社員";
+    document.getElementById("user-msg").innerText = user.message || "指示なし";
+    document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
+    
+    // 進捗バー
+    const p = user.progress || 0;
+    setTimeout(() => {
+        const fill = document.getElementById("progress-fill");
+        if(fill) fill.style.width = p + "%";
+        const text = document.getElementById("progress-text");
+        if(text) text.innerText = p;
+    }, 300);
+}
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
 
     async function login() {
@@ -292,6 +320,18 @@
             btn.innerText = "ログイン";
         }
     }
+    function logout() {
+    // 1. ブラウザに保存した社員情報を完全に削除する
+    localStorage.removeItem('waddy_user');
+
+    // 2. 念のためすべての保存データをクリアしたい場合はこちら（オプション）
+    // localStorage.clear();
+
+    // 3. ホーム画面に戻す
+    // これにより、index.html側でも「ログイン情報なし」と判定され、
+    // 右上のボタンが「社員専用」に戻ります。
+    window.location.href = "index.html";
+}
 </script>
 </body>
 </html>

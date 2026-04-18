@@ -322,6 +322,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 localStorage.setItem('waddy_id', id);
                 localStorage.setItem('waddy_pass', pass);
                 const userData = {
+                    id: id,
                     name: result.name,
                     role: result.role,
                     img: result.img || "https://via.placeholder.com/150",

@@ -222,3 +222,24 @@ footer {
     .services { flex-direction: column; align-items: center; }
     .service-card { width: 95%; max-width: 100%; }
 }
+/* 右上のユーザーチップ（アイコン＋名前）のデザイン */
+.user-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    padding: 5px 15px 5px 5px;
+    border-radius: 30px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+.user-chip:hover { transform: scale(1.05); }
+.user-chip img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}

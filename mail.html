@@ -132,22 +132,41 @@
         });
 
         // 送信処理
-        document.getElementById('sendBtn').onclick = async () => {
-            const toId = document.getElementById('toId').value;
-            const subject = document.getElementById('subject').value;
-            const body = document.getElementById('body').value;
+        // --- 2. メッセージ送信処理 ---
+// IDが 'sendBtn' の要素を取得してクリックイベントを設定
+const sendBtn = document.getElementById('sendBtn');
+if (sendBtn) {
+    sendBtn.addEventListener('click', async () => {
+        const toId = document.getElementById('toId').value.trim();
+        const subject = document.getElementById('subject').value.trim();
+        const body = document.getElementById('body').value.trim();
+
+        if (!toId || !subject || !body) {
+            alert("すべての項目を入力してください");
+            return;
+        }
+
+        try {
+            console.log("送信開始..."); // コンソールで動いているか確認用
             await addDoc(collection(db, "messages"), {
-                senderId: myId,
+                senderId: user.id, // ログイン情報から取得
                 receiverId: toId,
                 subject: subject,
                 body: body,
                 timestamp: serverTimestamp()
             });
-            alert("送信しました");
+            alert("送信に成功しました！");
+            
+            // 入力欄をリセット
             document.getElementById('toId').value = "";
             document.getElementById('subject').value = "";
             document.getElementById('body').value = "";
-        };
+        } catch (e) {
+            console.error("送信エラー:", e);
+            alert("送信に失敗しました。詳細はコンソールを確認してください。");
+        }
+    });
+}
     }
 
     // ログアウト処理

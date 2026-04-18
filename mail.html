@@ -13,6 +13,7 @@
             --text-sub: #5f6368;
             --bg-body: #f6f8fc;
             --border-color: #e0e2e6;
+            --active-blue: #d3e3fd;
         }
         
         body {
@@ -22,19 +23,32 @@
 
         /* --- サイドバー --- */
         #sidebar { width: var(--sidebar-width); padding: 12px; display: flex; flex-direction: column; }
+        
         .compose-btn {
             background: #c2e7ff; color: #001d35; border: none; padding: 18px 24px;
             border-radius: 16px; font-weight: 600; cursor: pointer; margin: 8px 0 16px 0;
             display: flex; align-items: center; gap: 12px; font-size: 14px;
             transition: box-shadow 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            width: fit-content;
         }
         .compose-btn:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+
+        /* フォルダメニュー */
+        .folder-menu { margin-bottom: 10px; }
+        .folder-item {
+            padding: 10px 16px; border-radius: 0 24px 24px 0; cursor: pointer;
+            display: flex; align-items: center; gap: 12px; font-size: 14px;
+            transition: background 0.2s; color: var(--text-main);
+            margin-right: 12px;
+        }
+        .folder-item:hover { background-color: #e8eaed; }
+        .folder-item.active { background-color: var(--active-blue); color: #041e49; font-weight: bold; }
         
-        #mail-list { flex: 1; overflow-y: auto; }
+        #mail-list { flex: 1; overflow-y: auto; margin-top: 10px; }
         .mail-item {
             display: flex; align-items: center; padding: 10px 16px; margin: 2px 0;
             border-radius: 0 24px 24px 0; cursor: pointer; position: relative;
-            background-color: #f2f5f7; transition: background 0.15s;
+            background-color: #f2f5f7; transition: background 0.15s; margin-right: 8px;
         }
         .mail-item:hover { background-color: #e8eaed; }
         .mail-item.unread { background-color: #ffffff; font-weight: bold; }
@@ -43,7 +57,7 @@
             background: var(--google-blue); border-radius: 50%;
         }
 
-        .sender-id { font-size: 14px; width: 80px; overflow: hidden; text-overflow: ellipsis; }
+        .sender-id { font-size: 14px; width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .subject-preview { font-size: 13px; color: var(--text-sub); margin-left: 10px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* --- メインコンテンツ --- */
@@ -53,10 +67,10 @@
         }
 
         #view-area, #compose-area { padding: 40px; display: none; height: 100%; box-sizing: border-box; overflow-y: auto; }
-        .active { display: block !important; }
+        .active-view { display: block !important; }
 
         .mail-header-title { font-size: 22px; margin-bottom: 20px; font-weight: 400; color: #1f1f1f; }
-        .mail-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .mail-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .sender-info { font-weight: bold; font-size: 14px; }
         .timestamp { font-size: 12px; color: var(--text-sub); }
 
@@ -64,9 +78,7 @@
         .form-group { margin-bottom: 12px; }
         .instruction { font-size: 11px; color: var(--text-sub); margin-bottom: 5px; }
         
-        select[multiple] {
-            height: 100px; border: 1px solid var(--border-color); border-radius: 8px; width: 100%;
-        }
+        select[multiple] { height: 100px; border: 1px solid var(--border-color); border-radius: 8px; width: 100%; }
         input, textarea {
             width: 100%; border: none; border-bottom: 1px solid var(--border-color);
             padding: 12px 8px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;
@@ -96,7 +108,14 @@
         <svg width="24" height="24" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>
         作成
     </button>
+
+    <div class="folder-menu">
+        <div class="folder-item active" id="f-inbox"><span>📥</span> 受信トレイ</div>
+        <div class="folder-item" id="f-sent"><span>📤</span> 送信済み</div>
+    </div>
+
     <div id="mail-list">読み込み中...</div>
+
     <div id="footer">
         <div style="font-size: 12px; font-weight: bold;">User: <span id="my-id-display">---</span></div>
         <button id="btn-logout">ログアウト</button>
@@ -146,18 +165,18 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 1. ログインユーザー確認
+    // 1. ログイン確認
     const localData = localStorage.getItem('waddy_user');
     if (!localData) { window.location.href = "index.html"; }
     const userData = JSON.parse(localData);
-    
-    // userData.id が存在しない場合のフォールバック
-    const MY_ID = userData.id || localStorage.getItem('waddy_id'); 
+    const MY_ID = userData.id;
     document.getElementById('my-id-display').innerText = `${userData.name} (${MY_ID})`;
 
     let allUserIds = []; 
+    let currentFolder = "inbox";
+    let unsubscribe = null; 
 
-    // 2. 宛先リスト取得
+    // 2. 宛先リスト取得 (GAS)
     async function loadUserList() {
         const select = document.getElementById('toId');
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec?mode=list"; 
@@ -165,9 +184,7 @@
             const res = await fetch(GAS_URL);
             const users = await res.json();
             users.forEach(u => {
-                // 重複を避けて全ユーザーIDを保持
                 if (!allUserIds.includes(u.id)) allUserIds.push(u.id); 
-                
                 if(u.id !== MY_ID) {
                     const opt = document.createElement('option');
                     opt.value = u.id; opt.innerText = `${u.name} (${u.id})`;
@@ -177,110 +194,116 @@
         } catch(e) { console.warn("GAS読み込み失敗"); }
     }
 
-    // 3. 受信監視
+    // 3. 受信/送信 監視処理
     function startListening() {
         if (!MY_ID) return;
-        const q = query(
-            collection(db, "messages"), 
-            where("receiverIds", "array-contains-any", [MY_ID, "ALL"]), 
-            orderBy("timestamp", "desc")
-        );
-        onSnapshot(q, (snapshot) => {
-            const list = document.getElementById('mail-list');
+        if (unsubscribe) unsubscribe(); // 前の監視を停止
+
+        const list = document.getElementById('mail-list');
+        list.innerHTML = "読み込み中...";
+
+        let q;
+        if (currentFolder === "inbox") {
+            q = query(
+                collection(db, "messages"), 
+                where("receiverIds", "array-contains-any", [MY_ID, "ALL"]), 
+                orderBy("timestamp", "desc")
+            );
+        } else {
+            q = query(
+                collection(db, "messages"), 
+                where("senderId", "==", MY_ID), 
+                orderBy("timestamp", "desc")
+            );
+        }
+
+        unsubscribe = onSnapshot(q, (snapshot) => {
             list.innerHTML = "";
+            if (snapshot.empty) {
+                list.innerHTML = `<div style="text-align:center; padding:20px; color:#999; font-size:12px;">メールはありません</div>`;
+                return;
+            }
+
             snapshot.forEach(d => {
                 const data = d.data();
                 const item = document.createElement('div');
-                item.className = `mail-item ${data.readBy && data.readBy.includes(MY_ID) ? '' : 'unread'}`;
+                
+                // 受信トレイのみ未読判定
+                const isUnread = currentFolder === "inbox" && !(data.readBy && data.readBy.includes(MY_ID));
+                item.className = `mail-item ${isUnread ? 'unread' : ''}`;
+                
+                // 表示名 (受信なら送信者、送信済みなら宛先)
+                const displayLabel = currentFolder === "inbox" ? data.senderId : `To: ${data.receiverIds[0]}${data.receiverIds.length > 1 ? '...' : ''}`;
+
                 item.innerHTML = `
-                    <div class="sender-id">${data.senderId}</div>
+                    <div class="sender-id">${displayLabel}</div>
                     <div class="subject-preview">${data.subject}</div>
                 `;
                 item.addEventListener('click', () => showMail(d.id, data));
                 list.appendChild(item);
             });
-        }, (error) => {
-            console.error("受信監視エラー:", error);
+        }, (err) => {
+            console.error("Firebase Error:", err);
+            list.innerHTML = `<div style="color:red; font-size:11px;">エラー: インデックス作成が必要かもしれません</div>`;
         });
     }
 
-    // 4. メール表示 & 既読化
+    // 4. フォルダ切り替え
+    function setupFolderMenu() {
+        const inboxBtn = document.getElementById('f-inbox');
+        const sentBtn = document.getElementById('f-sent');
+
+        inboxBtn.addEventListener('click', () => {
+            currentFolder = "inbox";
+            inboxBtn.classList.add('active');
+            sentBtn.classList.remove('active');
+            startListening();
+        });
+
+        sentBtn.addEventListener('click', () => {
+            currentFolder = "sent";
+            sentBtn.classList.add('active');
+            inboxBtn.classList.remove('active');
+            startListening();
+        });
+    }
+
+    // 5. メール表示 & 既読化
     async function showMail(docId, data) {
-        document.getElementById('compose-area').classList.remove('active');
-        document.getElementById('view-area').classList.add('active');
-        document.getElementById('v-subject').innerText = data.subject;
-        document.getElementById('v-sender').innerText = `From: ${data.senderId}`;
-        document.getElementById('v-body').innerText = data.body;
-        document.getElementById('v-time').innerText = data.timestamp?.toDate().toLocaleString() || "";
+        document.getElementById('compose-area').classList.remove('active-view');
+        document.getElementById('view-area').classList.add('active-view');
         
-        let currentReadBy = data.readBy || [];
-        if (!currentReadBy.includes(MY_ID)) {
-            currentReadBy.push(MY_ID);
-            await updateDoc(doc(db, "messages", docId), { readBy: currentReadBy });
+        document.getElementById('v-subject').innerText = data.subject;
+        document.getElementById('v-sender').innerText = currentFolder === "inbox" ? `From: ${data.senderId}` : `To: ${data.receiverIds.join(', ')}`;
+        document.getElementById('v-body').innerText = data.body;
+        document.getElementById('v-time').innerText = data.timestamp?.toDate().toLocaleString() || "---";
+        
+        // 受信メールを読んだ時だけ既読にする
+        if (currentFolder === "inbox") {
+            let currentReadBy = data.readBy || [];
+            if (!currentReadBy.includes(MY_ID)) {
+                currentReadBy.push(MY_ID);
+                await updateDoc(doc(db, "messages", docId), { readBy: currentReadBy });
+            }
         }
     }
 
-    // 作成ボタン
-    document.getElementById('btn-compose').addEventListener('click', () => {
-        document.getElementById('view-area').classList.remove('active');
-        document.getElementById('compose-area').classList.add('active');
-    });
-
-    // ログアウト
-    document.getElementById('btn-logout').addEventListener('click', () => {
-        if (confirm("ログアウトしますか？")) {
-            localStorage.clear();
-            window.location.href = "index.html";
-        }
-    });
-
-    // ポータルに戻る
-    document.getElementById('btn-back').addEventListener('click', () => {
-        window.location.href = "index.html"; 
-    });
-
-    // 送信ボタンの処理
+    // 6. 送信ボタン
     document.getElementById('btn-send').addEventListener('click', async () => {
-        const currentLocalData = localStorage.getItem('waddy_user');
-        if (!currentLocalData) {
-            alert("ログイン情報が見つかりません。");
-            window.location.href = "index.html";
-            return;
-        }
-        
-        const currentStatus = JSON.parse(currentLocalData);
-        const senderId = currentStatus.id || MY_ID;
-
-        if (!senderId || senderId === "undefined") {
-            alert("ログインIDが不明です。再ログインしてください。");
-            return;
-        }
-
-        const selectElement = document.getElementById('toId');
-        const selectedOptions = Array.from(selectElement.selectedOptions).map(opt => opt.value);
         const subject = document.getElementById('subject').value;
         const body = document.getElementById('body').value;
+        const select = document.getElementById('toId');
+        const selectedOptions = Array.from(select.selectedOptions).map(o => o.value);
         const status = document.getElementById('send-status');
 
-        if (selectedOptions.length === 0 || !subject || !body) {
-            alert("入力漏れがあります");
-            return;
-        }
+        if (selectedOptions.length === 0 || !subject || !body) return alert("入力漏れがあります");
 
         try {
             status.innerText = "送信中...";
-            
-            // 「全員」が含まれる場合は自分を除外した全員リストにする
-            let targetIds;
-            if (selectedOptions.includes("ALL")) {
-                targetIds = allUserIds.filter(id => id !== senderId);
-                // テスト用等の特定IDを除外したい場合はここに追加可能
-            } else {
-                targetIds = selectedOptions;
-            }
+            let targetIds = selectedOptions.includes("ALL") ? allUserIds.filter(id => id !== MY_ID) : selectedOptions;
 
             await addDoc(collection(db, "messages"), {
-                senderId: senderId,
+                senderId: MY_ID,
                 receiverIds: targetIds,
                 subject: subject,
                 body: body,
@@ -293,7 +316,7 @@
                 status.innerText = "";
                 document.getElementById('subject').value = "";
                 document.getElementById('body').value = "";
-                document.getElementById('compose-area').classList.remove('active');
+                document.getElementById('compose-area').classList.remove('active-view');
             }, 1500);
         } catch(e) {
             status.innerText = "❌ 送信失敗";
@@ -301,7 +324,17 @@
         }
     });
 
+    // その他UI操作
+    document.getElementById('btn-compose').addEventListener('click', () => {
+        document.getElementById('view-area').classList.remove('active-view');
+        document.getElementById('compose-area').classList.add('active-view');
+    });
+    document.getElementById('btn-back').addEventListener('click', () => window.location.href = "index.html");
+    document.getElementById('btn-logout').addEventListener('click', () => { localStorage.clear(); window.location.href = "index.html"; });
+
+    // 起動
     loadUserList();
+    setupFolderMenu();
     startListening();
 </script>
 </body>

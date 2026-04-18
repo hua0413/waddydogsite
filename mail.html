@@ -77,6 +77,29 @@
       status.innerText = "❌ 送信失敗: " + e.message;
     }
   });
+    <div class="form-container">
+    <h2>📩 受信トレイ</h2>
+    <div id="mail-list">
+        <p>読み込み中...</p>
+    </div>
+
+    <hr>
+
+    <h2>✍️ 新規メッセージ</h2>
+    <input type="text" id="toId" placeholder="宛先の社員ID">
+    <input type="text" id="subject" placeholder="件名">
+    <textarea id="body" rows="3" placeholder="本文..."></textarea>
+    <button id="sendBtn">送信</button>
+</div>
+
+<style>
+    #mail-list { max-height: 300px; overflow-y: auto; margin-bottom: 20px; }
+    .mail-item { background: #eee; padding: 10px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; }
+    .mail-item:hover { background: #e0e7ff; }
+    .mail-item h4 { margin: 0; font-size: 14px; }
+    .mail-item p { margin: 5px 0 0; font-size: 13px; color: #555; }
+    .mail-item .time { font-size: 10px; color: #999; }
+</style>
 </script>
 
 </body>

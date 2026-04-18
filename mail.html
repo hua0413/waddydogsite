@@ -177,6 +177,10 @@
 </div>
 
 <script type="module">
+    if (window.innerWidth <= 768 || ('ontouchstart' in window)) {
+    alert("この機能はPC専用です。ポータルへ戻ります。");
+    window.location.href = "index.html"; // 強制的に戻す
+}
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getFirestore, collection, addDoc, updateDoc, doc, serverTimestamp, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 

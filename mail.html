@@ -73,8 +73,7 @@
     // --- 2. 宛先リスト取得 (GAS) ---
     async function loadUserList() {
         const select = document.getElementById('toId');
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
-        
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec?mode=list"; 
         try {
             if (GAS_URL.includes("ここに")) throw new Error("URL未設定");
             const res = await fetch(GAS_URL);

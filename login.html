@@ -245,6 +245,11 @@
 <script>
     /* --- login.html の scriptの最初 --- */
 window.addEventListener('DOMContentLoaded', async () => {
+    const savedUser = JSON.parse(localStorage.getItem('waddy_user'));
+    if (savedUser) {
+        // すでにログイン情報があれば、フォームを隠してマイページを表示
+        showMyPage(savedUser);
+    }
     const savedId = localStorage.getItem('waddy_id');
     const savedPass = localStorage.getItem('waddy_pass'); // ログイン時にパスワードも保存するようにします
 

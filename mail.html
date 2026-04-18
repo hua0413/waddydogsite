@@ -327,7 +327,7 @@
     document.getElementById('f-sent').onclick = () => { currentFolder = "sent"; document.getElementById('f-sent').classList.add('active'); document.getElementById('f-inbox').classList.remove('active'); startListening(); switchView('welcome-area'); };
 
     document.getElementById('btn-compose').onclick = () => { switchView('compose-area'); };
-    document.getElementById('btn-back').onclick = () => window.location.href = "index.html";
+    document.getElementById('btn-back').onclick = () => window.location.href = "login.html";
     document.getElementById('btn-logout').onclick = () => { localStorage.clear(); window.location.href = "index.html"; };
 
     loadUserList();

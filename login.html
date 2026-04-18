@@ -246,37 +246,44 @@
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
 
     // ページ読み込み時の処理
-    window.addEventListener('DOMContentLoaded', async () => {
-        const savedUser = JSON.parse(localStorage.getItem('waddy_user'));
-        const savedId = localStorage.getItem('waddy_id');
-        const savedPass = localStorage.getItem('waddy_pass');
+window.addEventListener('DOMContentLoaded', async () => {
+    const savedUser = JSON.parse(localStorage.getItem('waddy_user'));
+    const savedId = localStorage.getItem('waddy_id');
+    const savedPass = localStorage.getItem('waddy_pass');
 
-        // 1. まずはブラウザに保存されているデータで速攻表示（待ち時間をなくす）
-        if (savedUser) {
-            showMyPage(savedUser);
-        }
+    // 1. まずはブラウザの記憶で即座に表示（これでアイコンは一旦出る）
+    if (savedUser) {
+        showMyPage(savedUser);
+    }
 
-        // 2. 次に、こっそりスプレッドシートから最新データを取って更新する
-        if (savedId && savedPass) {
-            try {
-                const response = await fetch(`${GAS_URL}?id=${savedId}&pass=${savedPass}`);
-                const result = await response.json();
-                if (result.success) {
-                    const userData = {
-                        name: result.name,
-                        role: result.role,
-                        img: result.img || "https://via.placeholder.com/150",
-                        message: result.message,
-                        progress: result.progress
-                    };
-                    localStorage.setItem('waddy_user', JSON.stringify(userData));
-                    showMyPage(userData); // 最新データで上書き反映
-                }
-            } catch (e) {
-                console.error("最新データの同期に失敗しました");
+    // 2. 最新データを取得して同期する
+    if (savedId && savedPass) {
+        try {
+            const response = await fetch(`${GAS_URL}?id=${savedId}&pass=${savedPass}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                // ここがポイント：新しいデータに画像があればそれを使う。
+                // もし新しいデータに画像がなければ、今表示している(savedUserの)画像を維持する。
+                const updatedUser = {
+                    name: result.name,
+                    role: result.role,
+                    img: result.img || (savedUser ? savedUser.img : "https://via.placeholder.com/150"),
+                    message: result.message,
+                    progress: result.progress
+                };
+
+                // ブラウザの記憶を最新版（画像維持）で上書き
+                localStorage.setItem('waddy_user', JSON.stringify(updatedUser));
+                
+                // 画面を最新状態で更新
+                showMyPage(updatedUser);
             }
+        } catch (e) {
+            console.error("同期失敗:", e);
         }
-    });
+    }
+});
 
     // ログイン処理
     async function login() {

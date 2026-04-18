@@ -77,8 +77,16 @@
             display: flex; flex-direction: column; overflow: hidden; 
         }
 
-        #view-area, #compose-area { padding: 32px 48px; display: none; height: 100%; box-sizing: border-box; overflow-y: auto; }
+        #view-area, #compose-area, #welcome-area { padding: 32px 48px; display: none; height: 100%; box-sizing: border-box; overflow-y: auto; }
         .active-view { display: block !important; }
+
+        /* ウェルカム画面専用スタイル */
+        #welcome-area {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; color: var(--text-sub);
+        }
+        #welcome-area.active-view { display: flex !important; }
+        .welcome-icon { font-size: 80px; margin-bottom: 20px; opacity: 0.5; }
 
         .mail-header-title { font-size: 26px; margin-bottom: 20px; font-weight: 400; }
         .mail-meta { 
@@ -131,6 +139,12 @@
 </div>
 
 <div id="main-container">
+    <div id="welcome-area" class="active-view">
+        <div class="welcome-icon">📧</div>
+        <h2 style="font-weight: 400; margin-bottom: 10px;">Waddy Mail へようこそ</h2>
+        <p>左のリストからメールを選択して表示・閲覧するか、<br>「作成」ボタンから新しいメッセージをメンバーに送りましょう。</p>
+    </div>
+
     <div id="view-area">
         <h2 id="v-subject" class="mail-header-title">件名</h2>
         <div class="mail-meta">
@@ -141,15 +155,15 @@
     </div>
 
     <div id="compose-area">
-        <h2 style="font-weight: 500; margin-bottom: 24px; color: var(--primary);">新規メール</h2>
-        <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">ctrlキーを押しながら複数選択</div>
+        <h2 style="font-weight: 500; margin-bottom: 24px; color: var(--primary);">新規作成</h2>
+        <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">ctrlを押しながら複数選択</div>
         <select id="toId" multiple class="input-field" style="height: 100px;">
-            <option value="ALL">全員に送信</option>
+            <option value="ALL">📢 全員に送信</option>
         </select>
         <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">見出し</div>
         <input type="text" id="subject" class="input-field" placeholder="件名">
         <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">本文</div>
-        <textarea id="body" class="input-field" rows="10" placeholder="画像をドラッグアンドドロップできるよ"></textarea>
+        <textarea id="body" class="input-field" rows="10" placeholder="メッセージ本文...画像をドラッグアンドドロップできます"></textarea>
         <div id="attachment-preview" style="margin-bottom:16px;"></div>
         <button id="btn-send" class="btn-send">送信</button>
         <p id="send-status" style="font-size: 13px; margin-top: 16px; font-weight: bold;"></p>
@@ -183,7 +197,15 @@
     let unsubscribe = null; 
     let attachedImageData = null;
 
-    // --- 画像添付処理 (リサイズ機能付き) ---
+    // 表示切り替え用の共通関数
+    function switchView(viewId) {
+        document.getElementById('welcome-area').classList.remove('active-view');
+        document.getElementById('view-area').classList.remove('active-view');
+        document.getElementById('compose-area').classList.remove('active-view');
+        document.getElementById(viewId).classList.add('active-view');
+    }
+
+    // --- 画像添付処理 ---
     const bodyArea = document.getElementById('body');
     const previewArea = document.getElementById('attachment-preview');
 
@@ -193,36 +215,20 @@
         e.preventDefault();
         bodyArea.classList.remove('dragover');
         const file = e.dataTransfer.files[0];
-        
         if (file && file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 1000; // 幅を最大1000pxに
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
+                    const MAX_WIDTH = 1000;
+                    let width = img.width; let height = img.height;
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-
-                    // 画質0.6でJPEG化することで大幅に軽量化
                     attachedImageData = canvas.toDataURL('image/jpeg', 0.6);
-                    
-                    previewArea.innerHTML = `
-                        <div style="position:relative; display:inline-block;">
-                            <img src="${attachedImageData}" style="height:100px; border-radius:8px; border:1px solid var(--primary);">
-                            <button onclick="clearAttachment()" style="position:absolute; top:-5px; right:-5px; background:var(--google-red); color:white; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer;">×</button>
-                            <p style="font-size:10px; color:gray; margin:0;">圧縮完了</p>
-                        </div>`;
+                    previewArea.innerHTML = `<div style="position:relative; display:inline-block;"><img src="${attachedImageData}" style="height:100px; border-radius:8px; border:1px solid var(--primary);"><button onclick="clearAttachment()" style="position:absolute; top:-5px; right:-5px; background:var(--google-red); color:white; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer;">×</button><p style="font-size:10px; color:gray; margin:0;">圧縮完了</p></div>`;
                 };
                 img.src = event.target.result;
             };
@@ -274,20 +280,15 @@
     }
 
     function showMail(docId, data) {
-        document.getElementById('compose-area').classList.remove('active-view');
-        document.getElementById('view-area').classList.add('active-view');
+        switchView('view-area');
         document.getElementById('v-subject').innerText = data.subject;
         document.getElementById('v-sender').innerText = currentFolder === "inbox" ? `差出人: ${data.senderId}` : `宛先: ${data.receiverIds.join(', ')}`;
         document.getElementById('v-time').innerText = data.timestamp?.toDate().toLocaleString() || "---";
 
         let html = data.body.replace(/(https?:\/\/[\w\/:%#\$&\?\(\)~\.=\+\-]+)/g, '<a href="$1" target="_blank" style="color:var(--primary);">$1</a>');
-        
-        // 画像URLの展開
         const imgExt = /\.(jpeg|jpg|gif|png|webp)($|\?)/i;
         const urls = data.body.match(/(https?:\/\/[\w\/:%#\$&\?\(\)~\.=\+\-]+)/g);
         if(urls) urls.forEach(u => { if(imgExt.test(u)) html += `<br><img src="${u}" class="content-image">`; });
-        
-        // 添付画像の表示
         if(data.image) html += `<br><img src="${data.image}" class="content-image">`;
 
         document.getElementById('v-body').innerHTML = html;
@@ -309,28 +310,23 @@
         try {
             status.innerText = "送信中...";
             let targets = toId.includes("ALL") ? allUserIds.filter(id => id !== MY_ID) : toId;
-
             await addDoc(collection(db, "messages"), {
                 senderId: MY_ID, receiverIds: targets, subject, body,
                 image: attachedImageData, timestamp: serverTimestamp(), readBy: []
             });
-
             status.innerText = "✅ 送信完了";
             setTimeout(() => {
                 status.innerText = ""; attachedImageData = null; previewArea.innerHTML = "";
                 document.getElementById('subject').value = ""; document.getElementById('body').value = "";
-                document.getElementById('compose-area').classList.remove('active-view');
+                switchView('welcome-area');
             }, 1000);
-        } catch(e) { 
-            status.innerText = "❌ 送信失敗"; 
-            console.error(e);
-        }
+        } catch(e) { status.innerText = "❌ 送信失敗"; }
     });
 
-    document.getElementById('f-inbox').onclick = () => { currentFolder = "inbox"; document.getElementById('f-inbox').classList.add('active'); document.getElementById('f-sent').classList.remove('active'); startListening(); };
-    document.getElementById('f-sent').onclick = () => { currentFolder = "sent"; document.getElementById('f-sent').classList.add('active'); document.getElementById('f-inbox').classList.remove('active'); startListening(); };
+    document.getElementById('f-inbox').onclick = () => { currentFolder = "inbox"; document.getElementById('f-inbox').classList.add('active'); document.getElementById('f-sent').classList.remove('active'); startListening(); switchView('welcome-area'); };
+    document.getElementById('f-sent').onclick = () => { currentFolder = "sent"; document.getElementById('f-sent').classList.add('active'); document.getElementById('f-inbox').classList.remove('active'); startListening(); switchView('welcome-area'); };
 
-    document.getElementById('btn-compose').onclick = () => { document.getElementById('view-area').classList.remove('active-view'); document.getElementById('compose-area').classList.add('active-view'); };
+    document.getElementById('btn-compose').onclick = () => { switchView('compose-area'); };
     document.getElementById('btn-back').onclick = () => window.location.href = "index.html";
     document.getElementById('btn-logout').onclick = () => { localStorage.clear(); window.location.href = "index.html"; };
 

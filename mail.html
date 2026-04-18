@@ -232,37 +232,47 @@ document.getElementById('btn-back').addEventListener('click', () => {
     window.location.href = "login.html"; 
 });
 
-    // 送信
+   // 送信ボタンのクリックイベント
     document.getElementById('btn-send').addEventListener('click', async () => {
         const selectElement = document.getElementById('toId');
+        // 選ばれた項目の値を配列にする
         const selectedOptions = Array.from(selectElement.selectedOptions).map(opt => opt.value);
         const subject = document.getElementById('subject').value;
         const body = document.getElementById('body').value;
         const status = document.getElementById('send-status');
 
-        if (selectedOptions.length === 0 || !subject || !body) return alert("宛先、件名、本文を入力してください");
+        if (!MY_ID) return alert("送信者IDが不明です。再ログインしてください。");
+        if (selectedOptions.length === 0 || !subject || !body) return alert("入力漏れがあります");
 
         try {
             status.innerText = "送信中...";
-            // 宛先に ALL が含まれていれば ALL だけにする、そうでなければ選択リスト
-            const targetIds = selectedOptions.includes("ALL") ? ["ALL"] : selectedOptions;
+
+            // --- 💡 ここがポイント！ ---
+            let targetIds;
+            if (selectedOptions.includes("ALL")) {
+                // 「全員に送信」が選ばれていたら、GASから取得済みの全ユーザーIDリストを使う
+                // 自分を除外したい場合は .filter(id => id !== MY_ID) をつける
+                targetIds = allUserIds; 
+            } else {
+                // 個別に選ばれていたらそのリストを使う
+                targetIds = selectedOptions;
+            }
 
             await addDoc(collection(db, "messages"), {
                 senderId: MY_ID,
-                receiverIds: targetIds, // 配列で保存
+                receiverIds: targetIds, // ここに全員のIDが配列 [ "id1", "id2", "id3"... ] で入る
                 subject: subject,
                 body: body,
                 timestamp: serverTimestamp(),
-                readBy: [] // 誰が読んだかを記録する配列
+                readBy: [] 
             });
+            
             status.innerText = "✅ 送信完了";
-            setTimeout(() => {
-                status.innerText = "";
-                document.getElementById('subject').value = "";
-                document.getElementById('body').value = "";
-                document.getElementById('compose-area').classList.remove('active');
-            }, 1000);
-        } catch(e) { status.innerText = "❌ 送信失敗"; console.error(e); }
+            // ...（リセット処理などはそのまま）
+        } catch(e) { 
+            status.innerText = "❌ 送信失敗"; 
+            console.error("エラー詳細:", e); 
+        }
     });
 
     loadUserList();

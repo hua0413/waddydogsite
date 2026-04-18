@@ -36,12 +36,10 @@
         .mail-item {
             display: flex; align-items: center; padding: 10px 16px; margin: 2px 0;
             border-radius: 0 24px 24px 0; cursor: pointer; position: relative;
-            background-color: #f2f5f7; /* 既読時の標準 */
+            background-color: #f2f5f7;
             transition: background 0.15s;
         }
         .mail-item:hover { background-color: #e8eaed; }
-        
-        /* 未読スタイル */
         .mail-item.unread { background-color: #ffffff; font-weight: bold; }
         .mail-item.unread::after {
             content: ""; position: absolute; right: 16px; width: 8px; height: 8px;
@@ -60,13 +58,12 @@
         #view-area, #compose-area { padding: 40px; display: none; height: 100%; box-sizing: border-box; overflow-y: auto; }
         .active { display: block !important; }
 
-        /* 件名エリア */
         .mail-header-title { font-size: 22px; margin-bottom: 20px; font-weight: 400; color: #1f1f1f; }
         .mail-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .sender-info { font-weight: bold; font-size: 14px; }
         .timestamp { font-size: 12px; color: var(--text-sub); }
 
-        /* フォーム入力 */
+        /* フォーム */
         .form-group { margin-bottom: 12px; }
         select, input, textarea {
             width: 100%; border: none; border-bottom: 1px solid var(--border-color);
@@ -81,7 +78,12 @@
         }
         .btn-send:hover { background: #1557b0; }
 
-        #footer { padding: 10px; font-size: 12px; color: var(--text-sub); text-align: center; }
+        /* フッター・ログアウト */
+        #footer { padding: 15px; border-top: 1px solid #eee; text-align: center; }
+        #btn-logout { 
+            background: none; border: none; color: var(--google-red); 
+            cursor: pointer; font-size: 12px; margin-top: 8px; text-decoration: underline; 
+        }
     </style>
 </head>
 <body>
@@ -93,7 +95,8 @@
     </button>
     <div id="mail-list">読み込み中...</div>
     <div id="footer">
-        User: <span id="my-id-display">---</span>
+        <div style="font-size: 12px; font-weight: bold;">User: <span id="my-id-display">---</span></div>
+        <button id="btn-logout">ログアウト</button>
     </div>
 </div>
 
@@ -137,12 +140,17 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // 1. ログインユーザー確認
     const localData = localStorage.getItem('waddy_user');
-    const userData = localData ? JSON.parse(localData) : { id: "waddy01", name: "ゲスト" };
-    const MY_ID = userData.id || "waddy01"; 
-
+    if (!localData) {
+        alert("ログインが必要です");
+        window.location.href = "index.html"; 
+    }
+    const userData = JSON.parse(localData);
+    const MY_ID = userData.id;
     document.getElementById('my-id-display').innerText = `${userData.name} (${MY_ID})`;
 
+    // 2. 宛先リスト取得
     async function loadUserList() {
         const select = document.getElementById('toId');
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec?mode=list"; 
@@ -156,16 +164,19 @@
                     select.appendChild(opt);
                 }
             });
-        } catch(e) {
-            console.warn("GAS読み込みスキップ");
-        }
+        } catch(e) { console.warn("GAS読み込みスキップ"); }
     }
 
+    // 3. 受信監視
     function startListening() {
         const q = query(collection(db, "messages"), where("receiverId", "==", MY_ID), orderBy("timestamp", "desc"));
         onSnapshot(q, (snapshot) => {
             const list = document.getElementById('mail-list');
             list.innerHTML = "";
+            if (snapshot.empty) {
+                list.innerHTML = '<p style="text-align:center; color:gray; font-size:12px;">メールはありません</p>';
+                return;
+            }
             snapshot.forEach(d => {
                 const data = d.data();
                 const item = document.createElement('div');
@@ -180,6 +191,7 @@
         });
     }
 
+    // 4. メール表示 & 既読化
     async function showMail(docId, data) {
         document.getElementById('compose-area').classList.remove('active');
         document.getElementById('view-area').classList.add('active');
@@ -193,9 +205,17 @@
         }
     }
 
+    // 5. ボタン系イベント
     document.getElementById('btn-compose').addEventListener('click', () => {
         document.getElementById('view-area').classList.remove('active');
         document.getElementById('compose-area').classList.add('active');
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+        if (confirm("ログアウトしますか？")) {
+            localStorage.removeItem('waddy_user');
+            window.location.href = "index.html";
+        }
     });
 
     document.getElementById('btn-send').addEventListener('click', async () => {

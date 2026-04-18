@@ -244,7 +244,28 @@
 
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
+async function checkMaintenance() {
+    try {
+        const response = await fetch(GAS_URL);
+        const result = await response.json();
 
+        // メンテナンス中の場合
+        if (result.maintenance === true) {
+            // maintenance.html へ強制移動（ただし自分自身がそうならループするので除外）
+            if (!window.location.href.includes("maintenance.html")) {
+                window.location.href = "maintenance.html";
+            }
+        }
+    } catch (e) {
+        console.error("メンテナンスチェック失敗", e);
+    }
+}
+
+// ページ読み込み時に実行
+window.addEventListener('DOMContentLoaded', checkMaintenance);
+
+// ページ内移動（ハッシュ変更など）も監視したい場合はこれ
+window.addEventListener('hashchange', checkMaintenance);
     // ページ読み込み時の処理
 window.addEventListener('DOMContentLoaded', async () => {
     const savedUser = JSON.parse(localStorage.getItem('waddy_user'));

@@ -3,94 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waddy Mail - 社内メッセージ</title>
+    <title>Waddy Mail - 社内メッセージシステム</title>
     <style>
-        /* ページ全体をアプリっぽく整える */
         :root {
             --primary: #2563eb;
-            --sidebar-width: 280px;
+            --bg: #f1f5f9;
+            --text: #1e293b;
+            --border: #e2e8f0;
         }
         body {
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             height: 100vh;
-            background-color: #f1f5f9;
+            background-color: var(--bg);
+            color: var(--text);
         }
-        /* サイドバー（受信リスト） */
+        /* 左側：サイドバー */
         #sidebar {
-            width: var(--sidebar-width);
+            width: 320px;
             background: white;
-            border-right: 1px solid #e2e8f0;
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
         }
         #sidebar-header {
             padding: 20px;
-            border-bottom: 1px solid #e2e8f0;
-            font-weight: bold;
+            background: var(--primary);
+            color: white;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         #mail-list {
             flex: 1;
             overflow-y: auto;
         }
-        /* メインコンテンツ（メッセージ詳細 & 送信） */
-        #main-content {
+        .mail-item {
+            padding: 15px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mail-item:hover { background: #f8fafc; }
+        .mail-item.unread { border-left: 4px solid var(--primary); background: #eff6ff; }
+        .mail-subject { font-weight: bold; font-size: 0.9rem; display: block; }
+        .mail-sender { font-size: 0.8rem; color: #64748b; }
+
+        /* 右側：メインコンテンツ */
+        #main {
             flex: 1;
+            padding: 40px;
             display: flex;
             flex-direction: column;
-            padding: 30px;
             gap: 20px;
+            overflow-y: auto;
         }
         .card {
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
-        /* 共通ボタン */
-        .btn-logout {
-            font-size: 12px;
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
             cursor: pointer;
-            color: #ef4444;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        .logout-btn {
             background: none;
-            border: 1px solid #ef4444;
+            border: 1px solid white;
+            color: white;
             padding: 4px 8px;
-            border-radius: 4px;
+            font-size: 0.7rem;
+            width: auto;
         }
     </style>
 </head>
-<body id="app-body" style="display: none;"> <div id="sidebar">
+<body id="app-body" style="display: none;">
+
+<div id="sidebar">
     <div id="sidebar-header">
         <span>📩 受信トレイ</span>
-        <button class="btn-logout" onclick="logout()">ログアウト</button>
+        <button class="logout-btn" onclick="logout()">ログアウト</button>
     </div>
     <div id="mail-list">
         </div>
 </div>
 
-<div id="main-content">
+<div id="main">
     <div class="card">
-        <h3>👤 ログイン中: <span id="user-display">---</span></h3>
+        <h3 style="margin:0;">👤 ログインユーザー: <span id="user-display">---</span></h3>
     </div>
 
     <div class="card">
-        <h3>✍️ 新規メッセージ</h3>
-        <input type="text" id="toId" placeholder="宛先社員ID" style="width:100%; margin-bottom:10px; padding:8px;">
-        <input type="text" id="subject" placeholder="件名" style="width:100%; margin-bottom:10px; padding:8px;">
-        <textarea id="body" rows="5" placeholder="本文..." style="width:100%; margin-bottom:10px; padding:8px;"></textarea>
-        <button id="sendBtn" style="width:100%; padding:10px; background: var(--primary); color:white; border:none; border-radius:6px; cursor:pointer;">送信する</button>
+        <h3>✍️ 新規メッセージ作成</h3>
+        <input type="text" id="toId" placeholder="宛先の社員ID">
+        <input type="text" id="subject" placeholder="件名">
+        <textarea id="body" rows="6" placeholder="メッセージ本文を入力してください..."></textarea>
+        <button id="sendBtn">メッセージを送信する</button>
+        <p id="status" style="text-align:center; font-size:0.8rem; margin-top:10px;"></p>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { 
+        getFirestore, collection, addDoc, serverTimestamp, 
+        query, where, orderBy, onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    // --- Firebase設定 ---
-    const firebaseConfig = {
+    // --- 1. Firebase設定 (自分のものに書き換え) ---
+  const firebaseConfig = {
     apiKey: "AIzaSyCWP-3yPtIoghRcF0AZwqFTMfNvH1kpZ9o",
     authDomain: "waddy-portal.firebaseapp.com",
     projectId: "waddy-portal",
@@ -102,77 +142,101 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- 1. 認証ガード ---
-    const userData = localStorage.getItem('waddy_user'); // ログイン時に保存したデータ
+    // --- 2. 認証チェック ---
+    const userData = localStorage.getItem('waddy_user');
+    let currentUser = null;
+
     if (!userData) {
-        alert("ログインが必要です");
-        window.location.href = "login.html"; // ログインページへ強制送還
+        alert("ログインが必要です。");
+        // テスト環境でログイン画面がない場合は、下の一行をコメントアウトして、その下のテスト用ユーザーを有効にしてください。
+        window.location.href = "index.html"; 
+        
+        // テスト用強制ログイン (開発時のみ)
+        // currentUser = { id: "waddy01", name: "テスト太郎" };
     } else {
-        const user = JSON.parse(userData);
-        document.getElementById('app-body').style.display = 'flex'; // 認証OKなら表示
-        document.getElementById('user-display').innerText = `${user.name} (${user.id})`;
-        startApp(user.id);
+        currentUser = JSON.parse(userData);
     }
 
-    // --- 2. メイン処理 ---
-    function startApp(myId) {
-        // 受信監視
-        const q = query(collection(db, "messages"), where("receiverId", "==", myId), orderBy("timestamp", "desc"));
+    // ユーザーが正常に取得できた場合のみアプリ起動
+    if (currentUser && currentUser.id) {
+        document.getElementById('app-body').style.display = 'flex';
+        document.getElementById('user-display').innerText = `${currentUser.name} (${currentUser.id})`;
+        initApp(currentUser.id);
+    }
+
+    function initApp(myId) {
+        // --- 3. 受信監視 (リアルタイム) ---
+        const q = query(
+            collection(db, "messages"),
+            where("receiverId", "==", myId),
+            orderBy("timestamp", "desc")
+        );
+
         onSnapshot(q, (snapshot) => {
             const list = document.getElementById('mail-list');
             list.innerHTML = "";
-            snapshot.forEach(doc => {
+
+            if (snapshot.empty) {
+                list.innerHTML = '<p style="padding:20px; color:#94a3b8; text-align:center;">メッセージはありません</p>';
+                return;
+            }
+
+            snapshot.forEach((doc) => {
                 const data = doc.data();
-                const div = document.createElement('div');
-                div.style = "padding:15px; border-bottom:1px solid #eee; cursor:pointer;";
-                div.innerHTML = `<strong>${data.subject}</strong><br><small>From: ${data.senderId}</small>`;
-                div.onclick = () => alert(data.body);
-                list.appendChild(div);
+                const item = document.createElement('div');
+                item.className = 'mail-item';
+                item.innerHTML = `
+                    <span class="mail-sender">From: ${data.senderId}</span>
+                    <span class="mail-subject">${data.subject}</span>
+                `;
+                item.onclick = () => alert(`【本文】\n${data.body}`);
+                list.appendChild(item);
             });
+        }, (err) => {
+            console.error("Firestore Error:", err);
+            if(err.code === 'failed-precondition') {
+                alert("Firebaseのインデックス作成が必要です。コンソールのエラーログを確認してください。");
+            }
         });
 
-        // 送信処理
-        // --- 2. メッセージ送信処理 ---
-// IDが 'sendBtn' の要素を取得してクリックイベントを設定
-const sendBtn = document.getElementById('sendBtn');
-if (sendBtn) {
-    sendBtn.addEventListener('click', async () => {
-        const toId = document.getElementById('toId').value.trim();
-        const subject = document.getElementById('subject').value.trim();
-        const body = document.getElementById('body').value.trim();
+        // --- 4. 送信処理 ---
+        document.getElementById('sendBtn').addEventListener('click', async () => {
+            const toId = document.getElementById('toId').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const body = document.getElementById('body').value.trim();
+            const status = document.getElementById('status');
 
-        if (!toId || !subject || !body) {
-            alert("すべての項目を入力してください");
-            return;
-        }
+            if (!toId || !subject || !body) {
+                alert("未入力の項目があります。");
+                return;
+            }
 
-        try {
-            console.log("送信開始..."); // コンソールで動いているか確認用
-            await addDoc(collection(db, "messages"), {
-                senderId: user.id, // ログイン情報から取得
-                receiverId: toId,
-                subject: subject,
-                body: body,
-                timestamp: serverTimestamp()
-            });
-            alert("送信に成功しました！");
-            
-            // 入力欄をリセット
-            document.getElementById('toId').value = "";
-            document.getElementById('subject').value = "";
-            document.getElementById('body').value = "";
-        } catch (e) {
-            console.error("送信エラー:", e);
-            alert("送信に失敗しました。詳細はコンソールを確認してください。");
-        }
-    });
-}
+            try {
+                status.innerText = "送信中...";
+                await addDoc(collection(db, "messages"), {
+                    senderId: myId,
+                    receiverId: toId,
+                    subject: subject,
+                    body: body,
+                    timestamp: serverTimestamp(),
+                    isRead: false
+                });
+                status.innerText = "✅ 送信完了！";
+                document.getElementById('toId').value = "";
+                document.getElementById('subject').value = "";
+                document.getElementById('body').value = "";
+                setTimeout(() => status.innerText = "", 3000);
+            } catch (e) {
+                console.error("Send Error:", e);
+                status.innerText = "❌ エラーが発生しました。";
+            }
+        });
     }
 
-    // ログアウト処理
+    // ログアウト用
     window.logout = () => {
         localStorage.removeItem('waddy_user');
-        window.location.href = "login.html";
+        window.location.reload();
     };
 </script>
 </body>

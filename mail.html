@@ -142,12 +142,14 @@
 
     <div id="compose-area">
         <h2 style="font-weight: 500; margin-bottom: 24px; color: var(--primary);">新規メール</h2>
+        <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">ctrlキーを押しながら複数選択</div>
         <select id="toId" multiple class="input-field" style="height: 100px;">
             <option value="ALL">全員に送信</option>
         </select>
+        <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">見出し</div>
         <input type="text" id="subject" class="input-field" placeholder="件名">
-        <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">画像をここにドロップして添付</div>
-        <textarea id="body" class="input-field" rows="10" placeholder="本文..."></textarea>
+        <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">本文</div>
+        <textarea id="body" class="input-field" rows="10" placeholder="画像をドラッグアンドドロップできるよ"></textarea>
         <div id="attachment-preview" style="margin-bottom:16px;"></div>
         <button id="btn-send" class="btn-send">送信</button>
         <p id="send-status" style="font-size: 13px; margin-top: 16px; font-weight: bold;"></p>

@@ -3,171 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waddy Portal - 社内メール</title>
+    <title>Waddy Mail - 社内メッセージ</title>
     <style>
+        /* ページ全体をアプリっぽく整える */
         :root {
-            --primary-color: #2563eb;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
+            --primary: #2563eb;
+            --sidebar-width: 280px;
         }
-
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* 受信トレイのスタイル */
-        .section {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            margin-top: 0;
-            font-size: 1.25rem;
-            border-bottom: 2px solid var(--bg-color);
-            padding-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #mail-list {
-            height: 300px;
-            overflow-y: auto;
-            margin-top: 10px;
-        }
-
-        .mail-item {
-            padding: 12px;
-            border-bottom: 1px solid #f1f5f9;
-            transition: background 0.2s;
-            cursor: pointer;
-        }
-
-        .mail-item:hover {
+            height: 100vh;
             background-color: #f1f5f9;
         }
-
-        .mail-item:last-child {
-            border-bottom: none;
+        /* サイドバー（受信リスト） */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
         }
-
-        .mail-header {
+        #sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: bold;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
         }
-
-        .mail-subject {
-            font-weight: bold;
-            font-size: 0.95rem;
+        #mail-list {
+            flex: 1;
+            overflow-y: auto;
         }
-
-        .mail-time {
-            font-size: 0.75rem;
-            color: var(--text-sub);
+        /* メインコンテンツ（メッセージ詳細 & 送信） */
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            gap: 20px;
         }
-
-        .mail-body {
-            font-size: 0.85rem;
-            color: var(--text-sub);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-
-        /* 送信フォームのスタイル */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 0.9rem;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
+        /* 共通ボタン */
+        .btn-logout {
+            font-size: 12px;
             cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background-color: #1d4ed8;
-        }
-
-        #status {
-            text-align: center;
-            font-size: 0.8rem;
-            margin-top: 10px;
+            color: #ef4444;
+            background: none;
+            border: 1px solid #ef4444;
+            padding: 4px 8px;
+            border-radius: 4px;
         }
     </style>
 </head>
-<body>
-
-<div class="container">
-    <div class="section">
-        <h2>📩 受信トレイ (ID: <span id="my-display-id">---</span>)</h2>
-        <div id="mail-list">
-            <p style="text-align: center; color: #94a3b8;">読み込み中...</p>
+<body id="app-body" style="display: none;"> <div id="sidebar">
+    <div id="sidebar-header">
+        <span>📩 受信トレイ</span>
+        <button class="btn-logout" onclick="logout()">ログアウト</button>
+    </div>
+    <div id="mail-list">
         </div>
+</div>
+
+<div id="main-content">
+    <div class="card">
+        <h3>👤 ログイン中: <span id="user-display">---</span></h3>
     </div>
 
-    <div class="section">
-        <h2>✍️ 新規作成</h2>
-        <div class="form-group">
-            <input type="text" id="toId" placeholder="宛先の社員ID">
-        </div>
-        <div class="form-group">
-            <input type="text" id="subject" placeholder="件名">
-        </div>
-        <div class="form-group">
-            <textarea id="body" rows="4" placeholder="メッセージを入力..."></textarea>
-        </div>
-        <button id="sendBtn">送信する</button>
-        <div id="status"></div>
+    <div class="card">
+        <h3>✍️ 新規メッセージ</h3>
+        <input type="text" id="toId" placeholder="宛先社員ID" style="width:100%; margin-bottom:10px; padding:8px;">
+        <input type="text" id="subject" placeholder="件名" style="width:100%; margin-bottom:10px; padding:8px;">
+        <textarea id="body" rows="5" placeholder="本文..." style="width:100%; margin-bottom:10px; padding:8px;"></textarea>
+        <button id="sendBtn" style="width:100%; padding:10px; background: var(--primary); color:white; border:none; border-radius:6px; cursor:pointer;">送信する</button>
     </div>
 </div>
 
 <script type="module">
-    // Firebase SDKの読み込み
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { 
-        getFirestore, collection, addDoc, serverTimestamp, 
-        query, where, orderBy, onSnapshot 
-    } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    // --- ここをあなたのConfigに書き換えてください ---
-     const firebaseConfig = {
+    // --- Firebase設定 ---
+    const firebaseConfig = {
     apiKey: "AIzaSyCWP-3yPtIoghRcF0AZwqFTMfNvH1kpZ9o",
     authDomain: "waddy-portal.firebaseapp.com",
     projectId: "waddy-portal",
@@ -176,94 +99,62 @@
     appId: "1:89997369271:web:ea882a0832054a71655232"
   };
 
-    // 初期化
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // テスト用の自分自身のID (本来はログイン情報から取得)
-    const MY_ID = "waddy01"; 
-    document.getElementById('my-display-id').innerText = MY_ID;
+    // --- 1. 認証ガード ---
+    const userData = localStorage.getItem('waddy_user'); // ログイン時に保存したデータ
+    if (!userData) {
+        alert("ログインが必要です");
+        window.location.href = "login.html"; // ログインページへ強制送還
+    } else {
+        const user = JSON.parse(userData);
+        document.getElementById('app-body').style.display = 'flex'; // 認証OKなら表示
+        document.getElementById('user-display').innerText = `${user.name} (${user.id})`;
+        startApp(user.id);
+    }
 
-    // --- 1. 受信トレイのリアルタイム監視 ---
-    const q = query(
-        collection(db, "messages"),
-        where("receiverId", "==", MY_ID),
-        orderBy("timestamp", "desc")
-    );
-
-    onSnapshot(q, (snapshot) => {
-        const mailList = document.getElementById('mail-list');
-        mailList.innerHTML = "";
-
-        if (snapshot.empty) {
-            mailList.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 20px;">メッセージはありません</p>';
-            return;
-        }
-
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            const time = data.timestamp ? data.timestamp.toDate().toLocaleString('ja-JP', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : "送信中...";
-            
-            const mailItem = document.createElement('div');
-            mailItem.className = 'mail-item';
-            mailItem.innerHTML = `
-                <div class="mail-header">
-                    <span class="mail-subject">${data.subject}</span>
-                    <span class="mail-time">${time}</span>
-                </div>
-                <div class="mail-body">${data.body}</div>
-            `;
-            // クリックしたらアラートで全文表示（簡易的な詳細表示機能）
-            mailItem.onclick = () => alert(`【件名】\n${data.subject}\n\n【本文】\n${data.body}`);
-            mailList.appendChild(mailItem);
+    // --- 2. メイン処理 ---
+    function startApp(myId) {
+        // 受信監視
+        const q = query(collection(db, "messages"), where("receiverId", "==", myId), orderBy("timestamp", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const list = document.getElementById('mail-list');
+            list.innerHTML = "";
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const div = document.createElement('div');
+                div.style = "padding:15px; border-bottom:1px solid #eee; cursor:pointer;";
+                div.innerHTML = `<strong>${data.subject}</strong><br><small>From: ${data.senderId}</small>`;
+                div.onclick = () => alert(data.body);
+                list.appendChild(div);
+            });
         });
-    }, (error) => {
-        console.error("受信エラー:", error);
-    });
 
-    // --- 2. メッセージ送信処理 ---
-    document.getElementById('sendBtn').addEventListener('click', async () => {
-        const toId = document.getElementById('toId').value.trim();
-        const subject = document.getElementById('subject').value.trim();
-        const body = document.getElementById('body').value.trim();
-        const status = document.getElementById('status');
-
-        if (!toId || !subject || !body) {
-            alert("すべての項目を入力してください");
-            return;
-        }
-
-        try {
-            status.style.color = "orange";
-            status.innerText = "送信中...";
-            
+        // 送信処理
+        document.getElementById('sendBtn').onclick = async () => {
+            const toId = document.getElementById('toId').value;
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
             await addDoc(collection(db, "messages"), {
-                senderId: MY_ID,
+                senderId: myId,
                 receiverId: toId,
                 subject: subject,
                 body: body,
-                timestamp: serverTimestamp(),
-                isRead: false
+                timestamp: serverTimestamp()
             });
-
-            status.style.color = "green";
-            status.innerText = "✅ 送信完了！";
-            
-            // 入力欄をクリア
+            alert("送信しました");
             document.getElementById('toId').value = "";
             document.getElementById('subject').value = "";
             document.getElementById('body').value = "";
+        };
+    }
 
-            // 3秒後にステータスを消す
-            setTimeout(() => { status.innerText = ""; }, 3000);
-
-        } catch (e) {
-            console.error("送信エラー: ", e);
-            status.style.color = "red";
-            status.innerText = "❌ エラーが発生しました";
-        }
-    });
+    // ログアウト処理
+    window.logout = () => {
+        localStorage.removeItem('waddy_user');
+        window.location.href = "login.html";
+    };
 </script>
-
 </body>
 </html>

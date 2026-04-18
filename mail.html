@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>WaddyDog Mail - 送信テスト</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f7f6; }
+        .form-container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; }
+        button:hover { background: #1d4ed8; }
+        #status { margin-top: 15px; font-size: 14px; color: green; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>📩 メッセージ作成</h2>
+    <input type="text" id="toId" placeholder="宛先の社員ID (例: user001)">
+    <input type="text" id="subject" placeholder="件名">
+    <textarea id="body" rows="5" placeholder="本文を入力..."></textarea>
+    <button id="sendBtn">送信する</button>
+    <div id="status"></div>
+</div>
+
+<script type="module">
+  // 1. Firebase SDKの読み込み
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+  // 2. あなたのConfigに書き換えてください
+  const firebaseConfig = {
+    apiKey: "ここにAPIキー",
+    authDomain: "ここにドメイン",
+    projectId: "ここにID",
+    storageBucket: "...",
+    messagingSenderId: "...",
+    appId: "..."
+  };
+
+  // 3. 初期化
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // 4. 送信処理
+  document.getElementById('sendBtn').addEventListener('click', async () => {
+    const toId = document.getElementById('toId').value;
+    const subject = document.getElementById('subject').value;
+    const body = document.getElementById('body').value;
+    const status = document.getElementById('status');
+
+    if (!toId || !subject || !body) {
+        alert("全部入力してください！");
+        return;
+    }
+
+    try {
+      status.innerText = "送信中...";
+      
+      // Firestoreの "messages" コレクションにデータを追加
+      await addDoc(collection(db, "messages"), {
+        senderId: "test_user", // 本来はログイン情報から取得
+        receiverId: toId,
+        subject: subject,
+        body: body,
+        timestamp: serverTimestamp(),
+        isRead: false
+      });
+
+      status.innerText = "✅ 送信完了！Firestoreを確認してみて！";
+      document.getElementById('toId').value = "";
+      document.getElementById('subject').value = "";
+      document.getElementById('body').value = "";
+
+    } catch (e) {
+      console.error("エラー: ", e);
+      status.innerText = "❌ 送信失敗: " + e.message;
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -109,6 +109,31 @@
         <div class="dot"></div>
     </div>
 </div>
+<script>
+    // 1. GASのURLを定義（他ページと同じもの）
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
 
+    async function monitorMaintenance() {
+        try {
+            const response = await fetch(GAS_URL);
+            const result = await response.json();
+
+            // 2. もしメンテナンスが「解除（false）」されていたら
+            if (result.maintenance === false) {
+                // 自動的にホーム画面へリダイレクト！
+                window.location.href = "index.html";
+            }
+        } catch (e) {
+            console.error("ステータスチェック失敗", e);
+        }
+    }
+
+    // 3. 5秒ごとにスプレッドシートの状態を確認する（自動更新）
+    // 数値を小さくすればもっと早く反応しますが、GASの負荷を考えて5秒（5000ms）程度がおすすめ
+    setInterval(monitorMaintenance, 8000);
+
+    // ページ読み込み時にも一度実行
+    window.addEventListener('DOMContentLoaded', monitorMaintenance);
+</script>
 </body>
 </html>

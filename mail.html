@@ -50,7 +50,48 @@
   // 1. Firebase SDKの読み込み
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
   import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+  // ...初期化(initializeApp)などはそのまま...
+import { 
+  getFirestore, collection, addDoc, serverTimestamp, 
+  query, where, orderBy, onSnapshot 
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
+const db = getFirestore(app);
+
+// ログイン中の自分のID（テスト用に固定。後でログイン機能と連動させる）
+const myId = "waddy01"; 
+
+// ★受信メッセージをリアルタイムで監視する
+const q = query(
+  collection(db, "messages"),
+  where("receiverId", "==", myId), // 自分宛てのメッセージだけ
+  orderBy("timestamp", "desc")     // 新しい順
+);
+
+onSnapshot(q, (snapshot) => {
+  const mailList = document.getElementById('mail-list');
+  mailList.innerHTML = ""; // 一旦クリア
+
+  if (snapshot.empty) {
+    mailList.innerHTML = "<p>メッセージはありません。</p>";
+    return;
+  }
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    const time = data.timestamp ? data.timestamp.toDate().toLocaleString() : "送信中...";
+    
+    const item = document.createElement('div');
+    item.className = 'mail-item';
+    item.innerHTML = `
+        <h4>${data.subject} <span class="time">${time}</span></h4>
+        <p>${data.body}</p>
+    `;
+    mailList.innerHTML += item.outerHTML;
+  });
+});
+
+// ...送信(sendBtn)の処理はそのまま...
   // 2. あなたのConfigに書き換えてください
   const firebaseConfig = {
     apiKey: "AIzaSyCWP-3yPtIoghRcF0AZwqFTMfNvH1kpZ9o",

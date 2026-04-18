@@ -21,201 +21,91 @@
         }
         
         body { 
-            margin: 0; 
-            font-family: 'Open Sans', 'Segoe UI', Roboto, Arial, sans-serif; 
-            background-color: var(--surface); 
-            display: flex; 
-            height: 100vh; 
-            color: var(--text-main);
-            overflow: hidden;
+            margin: 0; font-family: 'Open Sans', 'Segoe UI', sans-serif; 
+            background-color: var(--surface); display: flex; height: 100vh; 
+            color: var(--text-main); overflow: hidden;
         }
 
         /* --- サイドバー --- */
-        #sidebar { 
-            width: var(--sidebar-width); 
-            padding: 16px; 
-            display: flex; 
-            flex-direction: column;
-            gap: 8px;
-        }
+        #sidebar { width: var(--sidebar-width); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
 
         .btn-back {
-            background: transparent;
-            border: none;
-            color: var(--text-sub);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px;
-            border-radius: 20px;
-            font-size: 14px;
-            transition: var(--transition);
+            background: transparent; border: none; color: var(--text-sub);
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+            padding: 12px; border-radius: 20px; font-size: 14px; transition: var(--transition);
         }
         .btn-back:hover { background: rgba(0,0,0,0.05); }
 
         .compose-btn { 
-            background: var(--primary-container); 
-            color: var(--on-primary-container); 
-            border: none; 
-            padding: 20px 24px; 
-            border-radius: 16px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            margin: 8px 0 16px 0; 
-            display: flex; 
-            align-items: center; 
-            gap: 16px; 
-            font-size: 16px; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: var(--transition);
-            width: fit-content;
+            background: var(--primary-container); color: var(--on-primary-container); 
+            border: none; padding: 18px 28px; border-radius: 16px; font-weight: 600; 
+            cursor: pointer; margin: 8px 0 16px 0; display: flex; align-items: center; 
+            gap: 16px; font-size: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: var(--transition); width: fit-content;
         }
-        .compose-btn:hover { 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            background: #c2e7ff;
-        }
+        .compose-btn:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: #c2e7ff; }
 
-        /* フォルダメニュー */
         .folder-menu { margin-bottom: 20px; }
         .folder-item { 
-            padding: 12px 24px; 
-            border-radius: 0 24px 24px 0; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            font-size: 14px; 
-            transition: var(--transition); 
-            color: var(--text-sub); 
-            margin-right: 16px; 
+            padding: 12px 24px; border-radius: 0 24px 24px 0; cursor: pointer; 
+            display: flex; align-items: center; gap: 12px; font-size: 14px; 
+            transition: var(--transition); color: var(--text-sub); margin-right: 16px; 
         }
-        .folder-item:hover { background-color: rgba(0,0,0,0.05); }
-        .folder-item.active { 
-            background-color: var(--primary-container); 
-            color: var(--on-primary-container); 
-            font-weight: bold; 
-        }
-        .folder-icon { font-size: 18px; }
+        .folder-item.active { background-color: var(--primary-container); color: var(--on-primary-container); font-weight: bold; }
+        .folder-item:hover:not(.active) { background-color: rgba(0,0,0,0.05); }
 
-        /* 受信リスト */
         #mail-list { flex: 1; overflow-y: auto; }
         .mail-item { 
-            display: flex; 
-            align-items: center; 
-            padding: 12px 16px; 
-            margin: 4px 12px 4px 0; 
-            border-radius: 0 12px 12px 0; 
-            cursor: pointer; 
-            background-color: transparent; 
-            transition: var(--transition); 
-            position: relative;
-            border-bottom: 1px solid rgba(0,0,0,0.03);
+            display: flex; align-items: center; padding: 12px 16px; margin: 4px 12px 4px 0; 
+            border-radius: 0 12px 12px 0; cursor: pointer; transition: var(--transition); 
+            position: relative; border-bottom: 1px solid rgba(0,0,0,0.03);
         }
-        .mail-item:hover { 
-            background-color: var(--white);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            z-index: 1;
-        }
-        .mail-item.unread { 
-            background-color: var(--white); 
-            font-weight: 700; 
-        }
+        .mail-item:hover { background-color: var(--white); box-shadow: 0 2px 6px rgba(0,0,0,0.08); z-index: 1; }
+        .mail-item.unread { background-color: var(--white); font-weight: 700; }
         .mail-item.unread::before {
             content: ""; position: absolute; left: 6px; width: 4px; height: 100%;
             background: var(--primary); border-radius: 4px;
         }
 
-        .sender-id { font-size: 14px; width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-main); }
+        .sender-id { font-size: 14px; width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .subject-preview { font-size: 13px; color: var(--text-sub); margin-left: 12px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* --- メインコンテンツ --- */
         #main-container { 
-            flex: 1; 
-            background: var(--white); 
-            margin: 16px 16px 16px 0; 
-            border-radius: 24px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
+            flex: 1; background: var(--white); margin: 16px 16px 16px 0; 
+            border-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+            display: flex; flex-direction: column; overflow: hidden; 
         }
 
-        #view-area, #compose-area { 
-            padding: 32px 48px; 
-            display: none; 
-            height: 100%; 
-            box-sizing: border-box; 
-            overflow-y: auto; 
-        }
+        #view-area, #compose-area { padding: 32px 48px; display: none; height: 100%; box-sizing: border-box; overflow-y: auto; }
         .active-view { display: block !important; }
 
-        .mail-header-title { font-size: 28px; margin: 0 0 24px 0; font-weight: 400; color: var(--text-main); }
+        .mail-header-title { font-size: 26px; margin-bottom: 20px; font-weight: 400; }
         .mail-meta { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 32px; 
-            padding: 16px;
-            background: var(--surface);
-            border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 24px; padding: 16px; background: var(--surface); border-radius: 12px;
         }
-        .sender-info { font-weight: 600; font-size: 15px; color: var(--primary); }
-        .timestamp { font-size: 13px; color: var(--text-sub); }
 
-        /* 画像表示用 */
-        .content-image { 
-            max-width: 100%; 
-            max-height: 500px; 
-            border-radius: 16px; 
-            margin-top: 20px; 
-            display: block; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
+        .content-image { max-width: 100%; max-height: 500px; border-radius: 12px; margin-top: 20px; display: block; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         
-        /* 入力エリア */
+        .input-field {
+            width: 100%; padding: 14px; border: 1px solid var(--border);
+            border-radius: 8px; font-size: 15px; margin-bottom: 16px;
+            box-sizing: border-box; background: var(--surface); outline: none;
+        }
+        .input-field:focus { border-color: var(--primary); background: var(--white); box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.1); }
+
         #body.dragover { background-color: var(--primary-container); border: 2px dashed var(--primary); }
 
-        .form-group { margin-bottom: 20px; }
-        .input-field {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 15px;
-            transition: var(--transition);
-            box-sizing: border-box;
-            background: var(--surface);
-        }
-        .input-field:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: var(--white);
-            box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.1);
-        }
-
         .btn-send { 
-            background: var(--primary); 
-            color: var(--white); 
-            border: none; 
-            padding: 12px 32px; 
-            border-radius: 100px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            float: right; 
-            margin-top: 16px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: var(--transition);
+            background: var(--primary); color: var(--white); border: none; 
+            padding: 12px 36px; border-radius: 100px; font-weight: 600; 
+            cursor: pointer; float: right; transition: var(--transition);
         }
-        .btn-send:hover { 
-            background: #0842a0; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transform: translateY(-1px);
-        }
+        .btn-send:hover { background: #0842a0; transform: translateY(-1px); }
 
-        #footer { padding: 20px; border-top: 1px solid rgba(0,0,0,0.05); text-align: center; background: rgba(0,0,0,0.02); }
-        #btn-logout { background: none; border: none; color: var(--google-red); cursor: pointer; font-size: 13px; margin-top: 8px; text-decoration: underline; opacity: 0.8; }
-        #btn-logout:hover { opacity: 1; }
+        #footer { padding: 16px; border-top: 1px solid rgba(0,0,0,0.05); text-align: center; }
+        #btn-logout { background: none; border: none; color: var(--google-red); cursor: pointer; font-size: 13px; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -223,21 +113,19 @@
 <div id="sidebar">
     <button id="btn-back" class="btn-back">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7 7l-7-7 7-7"/></svg>
-        戻る
+        ポータルへ戻る
     </button>
     <button id="btn-compose" class="compose-btn">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
         作成
     </button>
     <div class="folder-menu">
-        <div class="folder-item active" id="f-inbox"><span class="folder-icon">📥</span> 受信トレイ</div>
-        <div class="folder-item" id="f-sent"><span class="folder-icon">📤</span> 送信済み</div>
+        <div class="folder-item active" id="f-inbox"><span>📥</span> 受信トレイ</div>
+        <div class="folder-item" id="f-sent"><span>📤</span> 送信済み</div>
     </div>
     <div id="mail-list"></div>
     <div id="footer">
-        <div style="font-size: 13px; font-weight: 600; color: var(--on-primary-container);">
-            <span id="my-id-display">---</span>
-        </div>
+        <div style="font-size: 13px; font-weight: 600; margin-bottom: 4px;"><span id="my-id-display">---</span></div>
         <button id="btn-logout">ログアウト</button>
     </div>
 </div>
@@ -246,30 +134,23 @@
     <div id="view-area">
         <h2 id="v-subject" class="mail-header-title">件名</h2>
         <div class="mail-meta">
-            <span id="v-sender" class="sender-info">送信者</span>
-            <span id="v-time" class="timestamp">--:--</span>
+            <span id="v-sender" style="font-weight:600; color:var(--primary);">送信者</span>
+            <span id="v-time" style="font-size:12px; color:var(--text-sub);">--:--</span>
         </div>
-        <div id="v-body" style="white-space: pre-wrap; line-height: 1.8; color: var(--text-sub); font-size: 16px;"></div>
+        <div id="v-body" style="white-space: pre-wrap; line-height: 1.8; font-size: 15px;"></div>
     </div>
 
     <div id="compose-area">
-        <h2 style="font-weight: 500; margin-bottom: 24px; color: var(--primary);">新規メッセージ</h2>
-        <div class="form-group">
-            <label style="font-size: 12px; font-weight: bold; color: var(--text-sub); margin-bottom: 4px; display: block;">宛先</label>
-            <select id="toId" multiple class="input-field" style="height: 120px;">
-                <option value="ALL">📢 全員に送信</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <input type="text" id="subject" class="input-field" placeholder="件名をご入力ください">
-        </div>
-        <div class="form-group">
-            <p style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight: 600;">画像をここにドラッグ＆ドロップで添付</p>
-            <textarea id="body" class="input-field" rows="10" placeholder="メッセージを入力してください..."></textarea>
-        </div>
-        <div id="attachment-preview" style="margin-top:16px;"></div>
-        <button id="btn-send" class="btn-send">送信する</button>
-        <p id="send-status" style="font-size: 13px; margin-top: 20px; font-weight: bold;"></p>
+        <h2 style="font-weight: 500; margin-bottom: 24px; color: var(--primary);">新規作成</h2>
+        <select id="toId" multiple class="input-field" style="height: 100px;">
+            <option value="ALL">📢 全員に送信</option>
+        </select>
+        <input type="text" id="subject" class="input-field" placeholder="件名">
+        <div style="font-size:12px; color:var(--primary); margin-bottom:8px; font-weight:600;">画像をここにドロップして添付 (1MBまで自動圧縮)</div>
+        <textarea id="body" class="input-field" rows="10" placeholder="メッセージ本文..."></textarea>
+        <div id="attachment-preview" style="margin-bottom:16px;"></div>
+        <button id="btn-send" class="btn-send">送信</button>
+        <p id="send-status" style="font-size: 13px; margin-top: 16px; font-weight: bold;"></p>
     </div>
 </div>
 
@@ -300,26 +181,48 @@
     let unsubscribe = null; 
     let attachedImageData = null;
 
-    function formatBody(text) {
-        if(!text) return "";
-        const urlPattern = /(https?:\/\/[\w\/:%#\$&\?\(\)~\.=\+\-]+)/g;
-        return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
-    }
-
+    // --- 画像添付処理 (リサイズ機能付き) ---
     const bodyArea = document.getElementById('body');
     const previewArea = document.getElementById('attachment-preview');
 
     bodyArea.addEventListener('dragover', (e) => { e.preventDefault(); bodyArea.classList.add('dragover'); });
-    bodyArea.addEventListener('dragleave', () => { bodyArea.classList.remove('dragover'); });
+    bodyArea.addEventListener('dragleave', () => bodyArea.classList.remove('dragover'));
     bodyArea.addEventListener('drop', (e) => {
         e.preventDefault();
         bodyArea.classList.remove('dragover');
         const file = e.dataTransfer.files[0];
+        
         if (file && file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                attachedImageData = event.target.result;
-                previewArea.innerHTML = `<div style="position:relative; display:inline-block;"><img src="${attachedImageData}" style="height:120px; border-radius:12px; border:2px solid var(--primary);"><button onclick="clearAttachment()" style="position:absolute; top:-10px; right:-10px; background:var(--google-red); color:white; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; font-weight:bold;">×</button></div>`;
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1000; // 幅を最大1000pxに
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // 画質0.6でJPEG化することで大幅に軽量化
+                    attachedImageData = canvas.toDataURL('image/jpeg', 0.6);
+                    
+                    previewArea.innerHTML = `
+                        <div style="position:relative; display:inline-block;">
+                            <img src="${attachedImageData}" style="height:100px; border-radius:8px; border:1px solid var(--primary);">
+                            <button onclick="clearAttachment()" style="position:absolute; top:-5px; right:-5px; background:var(--google-red); color:white; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer;">×</button>
+                            <p style="font-size:10px; color:gray; margin:0;">圧縮完了</p>
+                        </div>`;
+                };
+                img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -327,12 +230,12 @@
 
     window.clearAttachment = () => { attachedImageData = null; previewArea.innerHTML = ""; };
 
+    // --- メインロジック ---
     async function loadUserList() {
-        const select = document.getElementById('toId');
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec?mode=list"; 
         try {
-            const res = await fetch(GAS_URL);
+            const res = await fetch("https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec?mode=list");
             const users = await res.json();
+            const select = document.getElementById('toId');
             users.forEach(u => {
                 if (!allUserIds.includes(u.id)) allUserIds.push(u.id); 
                 if(u.id !== MY_ID) {
@@ -341,11 +244,10 @@
                     select.appendChild(opt);
                 }
             });
-        } catch(e) { console.warn("GAS読み込み失敗"); }
+        } catch(e) { console.error("User list error"); }
     }
 
     function startListening() {
-        if (!MY_ID) return;
         if (unsubscribe) unsubscribe();
         const list = document.getElementById('mail-list');
         list.innerHTML = `<div style="padding:20px; font-size:12px; color:var(--text-sub);">読込中...</div>`;
@@ -361,109 +263,74 @@
                 const item = document.createElement('div');
                 const isUnread = currentFolder === "inbox" && !(data.readBy && data.readBy.includes(MY_ID));
                 item.className = `mail-item ${isUnread ? 'unread' : ''}`;
-                const displayLabel = currentFolder === "inbox" ? data.senderId : `To: ${data.receiverIds[0]}...`;
-                item.innerHTML = `<div class="sender-id">${displayLabel}</div><div class="subject-preview">${data.subject}</div>`;
+                const label = currentFolder === "inbox" ? data.senderId : `To: ${data.receiverIds[0]}...`;
+                item.innerHTML = `<div class="sender-id">${label}</div><div class="subject-preview">${data.subject}</div>`;
                 item.addEventListener('click', () => showMail(d.id, data));
                 list.appendChild(item);
             });
-            if(snapshot.empty) list.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-sub); font-size:13px;">メールはありません</div>`;
         });
     }
 
-    async function showMail(docId, data) {
+    function showMail(docId, data) {
         document.getElementById('compose-area').classList.remove('active-view');
         document.getElementById('view-area').classList.add('active-view');
-        
         document.getElementById('v-subject').innerText = data.subject;
         document.getElementById('v-sender').innerText = currentFolder === "inbox" ? `差出人: ${data.senderId}` : `宛先: ${data.receiverIds.join(', ')}`;
         document.getElementById('v-time').innerText = data.timestamp?.toDate().toLocaleString() || "---";
+
+        let html = data.body.replace(/(https?:\/\/[\w\/:%#\$&\?\(\)~\.=\+\-]+)/g, '<a href="$1" target="_blank" style="color:var(--primary);">$1</a>');
         
-        let htmlBody = formatBody(data.body);
+        // 画像URLの展開
         const imgExt = /\.(jpeg|jpg|gif|png|webp)($|\?)/i;
-        const urlPattern = /(https?:\/\/[\w\/:%#\$&\?\(\)~\.=\+\-]+)/g;
-        const foundUrls = data.body.match(urlPattern);
-
-        if (foundUrls) {
-            foundUrls.forEach(url => {
-                if (imgExt.test(url)) {
-                    htmlBody += `<br><img src="${url}" class="content-image">`;
-                }
-            });
-        }
-
-        if (data.image) {
-            htmlBody += `<br><img src="${data.image}" class="content-image">`;
-        }
-
-        document.getElementById('v-body').innerHTML = htmlBody;
+        const urls = data.body.match(/(https?:\/\/[\w\/:%#\$&\?\(\)~\.=\+\-]+)/g);
+        if(urls) urls.forEach(u => { if(imgExt.test(u)) html += `<br><img src="${u}" class="content-image">`; });
         
-        if (currentFolder === "inbox") {
-            let currentReadBy = data.readBy || [];
-            if (!currentReadBy.includes(MY_ID)) {
-                currentReadBy.push(MY_ID);
-                await updateDoc(doc(db, "messages", docId), { readBy: currentReadBy });
-            }
+        // 添付画像の表示
+        if(data.image) html += `<br><img src="${data.image}" class="content-image">`;
+
+        document.getElementById('v-body').innerHTML = html;
+
+        if (currentFolder === "inbox" && !(data.readBy && data.readBy.includes(MY_ID))) {
+            let rb = data.readBy || []; rb.push(MY_ID);
+            updateDoc(doc(db, "messages", docId), { readBy: rb });
         }
     }
 
     document.getElementById('btn-send').addEventListener('click', async () => {
         const subject = document.getElementById('subject').value;
         const body = document.getElementById('body').value;
-        const select = document.getElementById('toId');
-        const selectedOptions = Array.from(select.selectedOptions).map(o => o.value);
+        const toId = Array.from(document.getElementById('toId').selectedOptions).map(o => o.value);
         const status = document.getElementById('send-status');
 
-        if (selectedOptions.length === 0 || !subject || !body) return alert("入力漏れがあります");
+        if (!toId.length || !subject || !body) return alert("入力してください");
 
         try {
-            status.style.color = "var(--primary)";
             status.innerText = "送信中...";
-            let targetIds = selectedOptions.includes("ALL") ? allUserIds.filter(id => id !== MY_ID) : selectedOptions;
+            let targets = toId.includes("ALL") ? allUserIds.filter(id => id !== MY_ID) : toId;
 
             await addDoc(collection(db, "messages"), {
-                senderId: MY_ID,
-                receiverIds: targetIds,
-                subject: subject,
-                body: body,
-                image: attachedImageData,
-                timestamp: serverTimestamp(),
-                readBy: []
+                senderId: MY_ID, receiverIds: targets, subject, body,
+                image: attachedImageData, timestamp: serverTimestamp(), readBy: []
             });
-            
-            status.innerText = "✅ 送信完了しました";
+
+            status.innerText = "✅ 送信完了";
             setTimeout(() => {
-                status.innerText = "";
-                attachedImageData = null; 
-                previewArea.innerHTML = "";
-                document.getElementById('subject').value = "";
-                document.getElementById('body').value = "";
+                status.innerText = ""; attachedImageData = null; previewArea.innerHTML = "";
+                document.getElementById('subject').value = ""; document.getElementById('body').value = "";
                 document.getElementById('compose-area').classList.remove('active-view');
             }, 1000);
         } catch(e) { 
-            status.style.color = "var(--google-red)";
-            status.innerText = "❌ 送信に失敗しました"; 
+            status.innerText = "❌ 送信失敗"; 
+            console.error(e);
         }
     });
 
-    document.getElementById('f-inbox').addEventListener('click', () => {
-        currentFolder = "inbox";
-        document.getElementById('f-inbox').classList.add('active');
-        document.getElementById('f-sent').classList.remove('active');
-        startListening();
-    });
-    document.getElementById('f-sent').addEventListener('click', () => {
-        currentFolder = "sent";
-        document.getElementById('f-sent').classList.add('active');
-        document.getElementById('f-inbox').classList.remove('active');
-        startListening();
-    });
+    document.getElementById('f-inbox').onclick = () => { currentFolder = "inbox"; document.getElementById('f-inbox').classList.add('active'); document.getElementById('f-sent').classList.remove('active'); startListening(); };
+    document.getElementById('f-sent').onclick = () => { currentFolder = "sent"; document.getElementById('f-sent').classList.add('active'); document.getElementById('f-inbox').classList.remove('active'); startListening(); };
 
-    document.getElementById('btn-compose').addEventListener('click', () => {
-        document.getElementById('view-area').classList.remove('active-view');
-        document.getElementById('compose-area').classList.add('active-view');
-    });
-    document.getElementById('btn-back').addEventListener('click', () => window.location.href = "login.html");
-    document.getElementById('btn-logout').addEventListener('click', () => { localStorage.clear(); window.location.href = "index.html"; });
+    document.getElementById('btn-compose').onclick = () => { document.getElementById('view-area').classList.remove('active-view'); document.getElementById('compose-area').classList.add('active-view'); };
+    document.getElementById('btn-back').onclick = () => window.location.href = "index.html";
+    document.getElementById('btn-logout').onclick = () => { localStorage.clear(); window.location.href = "index.html"; };
 
     loadUserList();
     startListening();

@@ -308,6 +308,8 @@ function showMyPage(user) {
             const result = await response.json();
 
             if (result.success) {
+                localStorage.setItem('waddy_id', id);       // IDを保存
+                localStorage.setItem('waddy_pass', pass);   // 【追加】パスワードを保存
             const userData = {
                 name: result.name,
                 role: result.role,

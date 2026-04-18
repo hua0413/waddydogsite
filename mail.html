@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waddy Mail</title>
+    <title>Waddy Mail - Pro</title>
     <style>
         :root {
             --google-blue: #1a73e8;
@@ -21,9 +21,7 @@
         }
 
         /* --- サイドバー --- */
-        #sidebar {
-            width: var(--sidebar-width); padding: 12px; display: flex; flex-direction: column;
-        }
+        #sidebar { width: var(--sidebar-width); padding: 12px; display: flex; flex-direction: column; }
         .compose-btn {
             background: #c2e7ff; color: #001d35; border: none; padding: 18px 24px;
             border-radius: 16px; font-weight: 600; cursor: pointer; margin: 8px 0 16px 0;
@@ -36,8 +34,7 @@
         .mail-item {
             display: flex; align-items: center; padding: 10px 16px; margin: 2px 0;
             border-radius: 0 24px 24px 0; cursor: pointer; position: relative;
-            background-color: #f2f5f7;
-            transition: background 0.15s;
+            background-color: #f2f5f7; transition: background 0.15s;
         }
         .mail-item:hover { background-color: #e8eaed; }
         .mail-item.unread { background-color: #ffffff; font-weight: bold; }
@@ -65,11 +62,17 @@
 
         /* フォーム */
         .form-group { margin-bottom: 12px; }
-        select, input, textarea {
+        .instruction { font-size: 11px; color: var(--text-sub); margin-bottom: 5px; }
+        
+        /* 複数選択セレクトボックスの調整 */
+        select[multiple] {
+            height: 100px; border: 1px solid var(--border-color); border-radius: 8px;
+        }
+        input, textarea {
             width: 100%; border: none; border-bottom: 1px solid var(--border-color);
             padding: 12px 8px; font-size: 14px; outline: none; transition: border-color 0.2s;
         }
-        select:focus, input:focus { border-bottom: 2px solid var(--google-blue); }
+        input:focus { border-bottom: 2px solid var(--google-blue); }
         textarea { border: 1px solid var(--border-color); border-radius: 8px; margin-top: 10px; resize: none; }
 
         .btn-send {
@@ -78,12 +81,8 @@
         }
         .btn-send:hover { background: #1557b0; }
 
-        /* フッター・ログアウト */
         #footer { padding: 15px; border-top: 1px solid #eee; text-align: center; }
-        #btn-logout { 
-            background: none; border: none; color: var(--google-red); 
-            cursor: pointer; font-size: 12px; margin-top: 8px; text-decoration: underline; 
-        }
+        #btn-logout { background: none; border: none; color: var(--google-red); cursor: pointer; font-size: 12px; margin-top: 8px; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -111,14 +110,17 @@
     </div>
 
     <div id="compose-area">
-        <h2 style="font-weight: 500; margin-bottom: 30px;">新規メッセージ</h2>
+        <h2 style="font-weight: 500; margin-bottom: 20px;">新規メッセージ</h2>
         <div class="form-group">
-            <select id="toId"><option value="">宛先を選択...</option></select>
+            <div class="instruction">宛先（Ctrlキーを押しながらクリックで複数選択）</div>
+            <select id="toId" multiple>
+                <option value="ALL">📢 全員に送信</option>
+            </select>
         </div>
         <div class="form-group">
             <input type="text" id="subject" placeholder="件名">
         </div>
-        <textarea id="body" rows="12" placeholder="メッセージを入力..."></textarea>
+        <textarea id="body" rows="10" placeholder="メッセージを入力..."></textarea>
         <button id="btn-send" class="btn-send">送信</button>
         <p id="send-status" style="font-size: 12px; margin-top: 15px;"></p>
     </div>
@@ -140,15 +142,13 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 1. ログインユーザー確認
     const localData = localStorage.getItem('waddy_user');
-    if (!localData) {
-        alert("ログインが必要です");
-        window.location.href = "index.html"; 
-    }
+    if (!localData) { window.location.href = "index.html"; }
     const userData = JSON.parse(localData);
     const MY_ID = userData.id;
     document.getElementById('my-id-display').innerText = `${userData.name} (${MY_ID})`;
+
+    let allUserIds = []; // 全員送信用のリスト保持
 
     // 2. 宛先リスト取得
     async function loadUserList() {
@@ -158,29 +158,30 @@
             const res = await fetch(GAS_URL);
             const users = await res.json();
             users.forEach(u => {
+                allUserIds.push(u.id); // 全員リストに追加
                 if(u.id !== MY_ID) {
                     const opt = document.createElement('option');
                     opt.value = u.id; opt.innerText = `${u.name} (${u.id})`;
                     select.appendChild(opt);
                 }
             });
-        } catch(e) { console.warn("GAS読み込みスキップ"); }
+        } catch(e) { console.warn("GAS読み込み失敗"); }
     }
 
-    // 3. 受信監視
+    // 3. 受信監視 (自分が宛先リストに含まれているか、または ALL 指定のもの)
     function startListening() {
-        const q = query(collection(db, "messages"), where("receiverId", "==", MY_ID), orderBy("timestamp", "desc"));
+        const q = query(
+            collection(db, "messages"), 
+            where("receiverIds", "array-contains-any", [MY_ID, "ALL"]), 
+            orderBy("timestamp", "desc")
+        );
         onSnapshot(q, (snapshot) => {
             const list = document.getElementById('mail-list');
             list.innerHTML = "";
-            if (snapshot.empty) {
-                list.innerHTML = '<p style="text-align:center; color:gray; font-size:12px;">メールはありません</p>';
-                return;
-            }
             snapshot.forEach(d => {
                 const data = d.data();
                 const item = document.createElement('div');
-                item.className = `mail-item ${data.isRead ? '' : 'unread'}`;
+                item.className = `mail-item ${data.readBy && data.readBy.includes(MY_ID) ? '' : 'unread'}`;
                 item.innerHTML = `
                     <div class="sender-id">${data.senderId}</div>
                     <div class="subject-preview">${data.subject}</div>
@@ -191,7 +192,7 @@
         });
     }
 
-    // 4. メール表示 & 既読化
+    // 4. メール表示 & 既読化 (readBy配列に自分のIDを入れる)
     async function showMail(docId, data) {
         document.getElementById('compose-area').classList.remove('active');
         document.getElementById('view-area').classList.add('active');
@@ -200,17 +201,20 @@
         document.getElementById('v-body').innerText = data.body;
         document.getElementById('v-time').innerText = data.timestamp?.toDate().toLocaleString() || "";
         
-        if (!data.isRead) {
-            await updateDoc(doc(db, "messages", docId), { isRead: true });
+        let currentReadBy = data.readBy || [];
+        if (!currentReadBy.includes(MY_ID)) {
+            currentReadBy.push(MY_ID);
+            await updateDoc(doc(db, "messages", docId), { readBy: currentReadBy });
         }
     }
 
-    // 5. ボタン系イベント
+    // 作成ボタン
     document.getElementById('btn-compose').addEventListener('click', () => {
         document.getElementById('view-area').classList.remove('active');
         document.getElementById('compose-area').classList.add('active');
     });
 
+    // ログアウト
     document.getElementById('btn-logout').addEventListener('click', () => {
         if (confirm("ログアウトしますか？")) {
             localStorage.removeItem('waddy_user');
@@ -218,32 +222,37 @@
         }
     });
 
+    // 送信
     document.getElementById('btn-send').addEventListener('click', async () => {
-        const toId = document.getElementById('toId').value;
+        const selectElement = document.getElementById('toId');
+        const selectedOptions = Array.from(selectElement.selectedOptions).map(opt => opt.value);
         const subject = document.getElementById('subject').value;
         const body = document.getElementById('body').value;
         const status = document.getElementById('send-status');
 
-        if (!toId || !subject || !body) return alert("未入力項目があります");
+        if (selectedOptions.length === 0 || !subject || !body) return alert("宛先、件名、本文を入力してください");
 
         try {
             status.innerText = "送信中...";
+            // 宛先に ALL が含まれていれば ALL だけにする、そうでなければ選択リスト
+            const targetIds = selectedOptions.includes("ALL") ? ["ALL"] : selectedOptions;
+
             await addDoc(collection(db, "messages"), {
                 senderId: MY_ID,
-                receiverId: toId,
+                receiverIds: targetIds, // 配列で保存
                 subject: subject,
                 body: body,
                 timestamp: serverTimestamp(),
-                isRead: false
+                readBy: [] // 誰が読んだかを記録する配列
             });
-            status.innerText = "✅ 送信されました";
+            status.innerText = "✅ 送信完了";
             setTimeout(() => {
                 status.innerText = "";
                 document.getElementById('subject').value = "";
                 document.getElementById('body').value = "";
                 document.getElementById('compose-area').classList.remove('active');
             }, 1000);
-        } catch(e) { status.innerText = "❌ 送信失敗"; }
+        } catch(e) { status.innerText = "❌ 送信失敗"; console.error(e); }
     });
 
     loadUserList();

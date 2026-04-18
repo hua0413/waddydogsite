@@ -64,13 +64,12 @@
         .form-group { margin-bottom: 12px; }
         .instruction { font-size: 11px; color: var(--text-sub); margin-bottom: 5px; }
         
-        /* 複数選択セレクトボックスの調整 */
         select[multiple] {
-            height: 100px; border: 1px solid var(--border-color); border-radius: 8px;
+            height: 100px; border: 1px solid var(--border-color); border-radius: 8px; width: 100%;
         }
         input, textarea {
             width: 100%; border: none; border-bottom: 1px solid var(--border-color);
-            padding: 12px 8px; font-size: 14px; outline: none; transition: border-color 0.2s;
+            padding: 12px 8px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;
         }
         input:focus { border-bottom: 2px solid var(--google-blue); }
         textarea { border: 1px solid var(--border-color); border-radius: 8px; margin-top: 10px; resize: none; }
@@ -147,13 +146,16 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // 1. ログインユーザー確認
     const localData = localStorage.getItem('waddy_user');
     if (!localData) { window.location.href = "index.html"; }
     const userData = JSON.parse(localData);
-    const MY_ID = userData.id;
+    
+    // userData.id が存在しない場合のフォールバック
+    const MY_ID = userData.id || localStorage.getItem('waddy_id'); 
     document.getElementById('my-id-display').innerText = `${userData.name} (${MY_ID})`;
 
-    let allUserIds = []; // 全員送信用のリスト保持
+    let allUserIds = []; 
 
     // 2. 宛先リスト取得
     async function loadUserList() {
@@ -163,7 +165,9 @@
             const res = await fetch(GAS_URL);
             const users = await res.json();
             users.forEach(u => {
-                allUserIds.push(u.id); // 全員リストに追加
+                // 重複を避けて全ユーザーIDを保持
+                if (!allUserIds.includes(u.id)) allUserIds.push(u.id); 
+                
                 if(u.id !== MY_ID) {
                     const opt = document.createElement('option');
                     opt.value = u.id; opt.innerText = `${u.name} (${u.id})`;
@@ -173,8 +177,9 @@
         } catch(e) { console.warn("GAS読み込み失敗"); }
     }
 
-    // 3. 受信監視 (自分が宛先リストに含まれているか、または ALL 指定のもの)
+    // 3. 受信監視
     function startListening() {
+        if (!MY_ID) return;
         const q = query(
             collection(db, "messages"), 
             where("receiverIds", "array-contains-any", [MY_ID, "ALL"]), 
@@ -194,10 +199,12 @@
                 item.addEventListener('click', () => showMail(d.id, data));
                 list.appendChild(item);
             });
+        }, (error) => {
+            console.error("受信監視エラー:", error);
         });
     }
 
-    // 4. メール表示 & 既読化 (readBy配列に自分のIDを入れる)
+    // 4. メール表示 & 既読化
     async function showMail(docId, data) {
         document.getElementById('compose-area').classList.remove('active');
         document.getElementById('view-area').classList.add('active');
@@ -222,65 +229,77 @@
     // ログアウト
     document.getElementById('btn-logout').addEventListener('click', () => {
         if (confirm("ログアウトしますか？")) {
-            localStorage.removeItem('waddy_user');
+            localStorage.clear();
             window.location.href = "index.html";
         }
     });
 
-    // ポータルに戻るボタンの処理
-document.getElementById('btn-back').addEventListener('click', () => {
-    window.location.href = "login.html"; 
-});
+    // ポータルに戻る
+    document.getElementById('btn-back').addEventListener('click', () => {
+        window.location.href = "index.html"; 
+    });
 
-   // 送信ボタンのクリックイベント
-// 送信ボタンの処理
-document.getElementById('btn-send').addEventListener('click', async () => {
-    // --- 💡 ここで「今」のログイン情報を直接取りに行く ---
-    const currentLocalData = localStorage.getItem('waddy_user');
-    if (!currentLocalData) {
-        alert("ログイン情報が見つかりません。一度ログインし直してください。");
-        window.location.href = "index.html";
-        return;
-    }
-    
-    const currentStatus = JSON.parse(currentLocalData);
-    const senderId = currentStatus.id; // 送信直前に確定させる
-
-    // IDが異常な値（undefined文字列など）じゃないか厳重にチェック
-    if (!senderId || senderId === "undefined" || senderId === "null") {
-        alert("ログインIDが正しく認識されていません。再ログインが必要です。");
-        return;
-    }
-
-    // --- 以下、送信処理 ---
-    const selectElement = document.getElementById('toId');
-    const selectedOptions = Array.from(selectElement.selectedOptions).map(opt => opt.value);
-    const subject = document.getElementById('subject').value;
-    const body = document.getElementById('body').value;
-    const status = document.getElementById('send-status');
-
-    if (selectedOptions.length === 0 || !subject || !body) return alert("入力漏れがあります");
-
-    try {
-        status.innerText = "送信中...";
-        const targetIds = selectedOptions.includes("ALL") ? allUserIds : selectedOptions;
-
-        await addDoc(collection(db, "messages"), {
-            senderId: senderId, // 直前に取得したIDを使う！
-            receiverIds: targetIds,
-            subject: subject,
-            body: body,
-            timestamp: serverTimestamp(),
-            readBy: []
-        });
+    // 送信ボタンの処理
+    document.getElementById('btn-send').addEventListener('click', async () => {
+        const currentLocalData = localStorage.getItem('waddy_user');
+        if (!currentLocalData) {
+            alert("ログイン情報が見つかりません。");
+            window.location.href = "index.html";
+            return;
+        }
         
-        status.innerText = "✅ 送信完了";
-        // リセット処理...
-    } catch(e) {
-        status.innerText = "❌ 送信失敗";
-        console.error(e);
-    }
-});
+        const currentStatus = JSON.parse(currentLocalData);
+        const senderId = currentStatus.id || MY_ID;
+
+        if (!senderId || senderId === "undefined") {
+            alert("ログインIDが不明です。再ログインしてください。");
+            return;
+        }
+
+        const selectElement = document.getElementById('toId');
+        const selectedOptions = Array.from(selectElement.selectedOptions).map(opt => opt.value);
+        const subject = document.getElementById('subject').value;
+        const body = document.getElementById('body').value;
+        const status = document.getElementById('send-status');
+
+        if (selectedOptions.length === 0 || !subject || !body) {
+            alert("入力漏れがあります");
+            return;
+        }
+
+        try {
+            status.innerText = "送信中...";
+            
+            // 「全員」が含まれる場合は自分を除外した全員リストにする
+            let targetIds;
+            if (selectedOptions.includes("ALL")) {
+                targetIds = allUserIds.filter(id => id !== senderId);
+                // テスト用等の特定IDを除外したい場合はここに追加可能
+            } else {
+                targetIds = selectedOptions;
+            }
+
+            await addDoc(collection(db, "messages"), {
+                senderId: senderId,
+                receiverIds: targetIds,
+                subject: subject,
+                body: body,
+                timestamp: serverTimestamp(),
+                readBy: []
+            });
+            
+            status.innerText = "✅ 送信完了";
+            setTimeout(() => {
+                status.innerText = "";
+                document.getElementById('subject').value = "";
+                document.getElementById('body').value = "";
+                document.getElementById('compose-area').classList.remove('active');
+            }, 1500);
+        } catch(e) {
+            status.innerText = "❌ 送信失敗";
+            console.error(e);
+        }
+    });
 
     loadUserList();
     startListening();

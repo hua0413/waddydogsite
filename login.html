@@ -380,14 +380,14 @@ function showMyPage(user) {
         const result = await response.json();
 
         if (result.success) {
-            // ブラウザの記憶も更新
-            userData.img = newUrl;
-            localStorage.setItem('waddy_user', JSON.stringify(userData));
-            
-            // 画面のアイコンを即座に書き換える
-            document.getElementById('user-img').src = newUrl;
-            alert("アイコンを更新しました！ホーム画面でも反映されます。");
-        }
+    // ブラウザの記憶を最新のURLで上書き
+    let userData = JSON.parse(localStorage.getItem('waddy_user'));
+    userData.img = newUrl; 
+    localStorage.setItem('waddy_user', JSON.stringify(userData));
+    
+    document.getElementById('user-img').src = newUrl;
+    alert("アイコンを更新しました！");
+}
     } catch (e) {
         alert("更新に失敗しました。");
         console.error(e);

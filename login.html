@@ -131,7 +131,7 @@
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec";
     const DEFAULT_PW = "pass1234";
     const ADMIN_ID = "W001";
-    // ページ読み込み時に実行
+ // ページ読み込み時に実行
 window.onload = () => {
     const savedUser = localStorage.getItem('waddy_user');
     const savedPass = localStorage.getItem('waddy_pass_input');
@@ -140,10 +140,21 @@ window.onload = () => {
         // ログイン済みの場合
         showMyPage(JSON.parse(savedUser), savedPass);
     } else {
-        // 未ログインの場合：ログイン画面をパッと出す
+        // 未ログインの場合：ログインフォーム用のアクティブクラスを付与
         document.getElementById("login-form").classList.add("login-screen-active");
     }
 };
+
+function showMyPage(user, inputPass) {
+    // ログイン画面を隠し、マイページを表示する（クラスの付け替え）
+    document.getElementById("login-form").classList.remove("login-screen-active");
+    document.getElementById("staff-page").classList.add("dashboard-active");
+    
+    document.getElementById("welcome-msg").innerText = user.name + " さん";
+    document.getElementById("user-msg").innerText = user.message || "指示なし";
+    document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
+    checkPasswordStatus(user, inputPass);
+}
 
     async function login() {
         const id = document.getElementById("userId").value;
@@ -162,15 +173,6 @@ window.onload = () => {
             } else { err.innerText = result.message; }
         } catch (e) { err.innerText = "通信エラー"; }
     }
-
-    function showMyPage(user, inputPass) {
-    document.getElementById("login-form").classList.remove("login-screen-active");
-    document.getElementById("staff-page").classList.add("dashboard-active");
-    document.getElementById("welcome-msg").innerText = user.name + " さん";
-    document.getElementById("user-msg").innerText = user.message || "指示なし";
-    document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
-    checkPasswordStatus(user, inputPass);
-}
 
     function checkPasswordStatus(user, inputPass) {
         const popup = document.getElementById('pw-check-popup');

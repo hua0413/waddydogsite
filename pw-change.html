@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パスワードの更新 | Waddy Portal</title>
+    <style>
+        body {
+            margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh;
+        }
+        .container {
+            background: white; padding: 40px; border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px;
+        }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 24px; color: #1a73e8; margin: 0; }
+        .header p { color: #5f6368; font-size: 14px; margin-top: 8px; }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 12px; font-weight: bold; color: #1a73e8; margin-bottom: 8px; margin-left: 4px; }
+        input {
+            width: 100%; padding: 14px; border: 1px solid #dadce0; border-radius: 12px;
+            box-sizing: border-box; font-size: 16px; transition: border-color 0.2s; outline: none;
+        }
+        input:focus { border-color: #1a73e8; }
+
+        .btn-update {
+            width: 100%; padding: 16px; background: #0b57d0; color: white; border: none;
+            border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 20px;
+        }
+        .btn-update:disabled { background: #ccc; cursor: not-allowed; }
+        
+        #status-msg { text-align: center; font-size: 14px; margin-top: 15px; min-height: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>パスワードの更新</h1>
+        <p>セキュリティのため、新しいパスワードを設定する。</p>
+    </div>
+
+    <div class="form-group">
+        <label>現在のパスワード</label>
+        <input type="password" id="oldPw" placeholder="••••••••">
+    </div>
+
+    <div style="height: 1px; background: #eee; margin: 25px 0;"></div>
+
+    <div class="form-group">
+        <label>新しいパスワード</label>
+        <input type="password" id="newPw" placeholder="新しいパスワード">
+    </div>
+
+    <div class="form-group">
+        <label>新しいパスワード（確認）</label>
+        <input type="password" id="confirmPw" placeholder="もう一度入力">
+    </div>
+
+    <button class="btn-update" id="submitBtn" onclick="submitChange()">パスワードを更新する</button>
+    <div id="status-msg"></div>
+</div>
+
+<script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec";
+
+    async function submitChange() {
+        const oldPw = document.getElementById('oldPw').value;
+        const newPw = document.getElementById('newPw').value;
+        const confirmPw = document.getElementById('confirmPw').value;
+        const msgArea = document.getElementById('status-msg');
+        const btn = document.getElementById('submitBtn');
+
+        // 入力チェック
+        if (!oldPw || !newPw || !confirmPw) return alert("すべての項目を入力してください");
+        if (newPw !== confirmPw) return alert("新しいパスワードが一致しません");
+        if (newPw.length < 4) return alert("パスワードは4文字以上にしてください");
+        if (oldPw === newPw) return alert("現在のパスワードと同じものは使用できません");
+
+        const userData = JSON.parse(localStorage.getItem('waddy_user') || '{}');
+        if (!userData.id) return alert("ログインセッションが切れました。再度ログインしてください。");
+
+        btn.disabled = true;
+        msgArea.innerText = "照合中...";
+        msgArea.style.color = "#1a73e8";
+
+        try {
+            const url = `${GAS_URL}?mode=updatePassword&id=${userData.id}&oldPw=${encodeURIComponent(oldPw)}&newPw=${encodeURIComponent(newPw)}`;
+            const res = await fetch(url);
+            const result = await res.json();
+
+            if (result.success) {
+                msgArea.innerText = "✅ 更新完了！再ログインしてください。";
+                msgArea.style.color = "green";
+                setTimeout(() => {
+                    localStorage.clear(); // 情報をクリアしてログイン画面へ
+                    window.location.href = "index.html"; 
+                }, 2000);
+            } else {
+                msgArea.innerText = "❌ " + result.message;
+                msgArea.style.color = "red";
+                btn.disabled = false;
+            }
+        } catch (e) {
+            msgArea.innerText = "❌ 通信エラーが発生しました。";
+            msgArea.style.color = "red";
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>

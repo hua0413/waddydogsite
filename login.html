@@ -38,7 +38,7 @@
             text-align: center;
         }
 
-        /* マイページ全体のデザイン（PC対応） */
+        /* マイページ全体のデザイン */
         .dashboard {
             max-width: 1200px;
             margin: 0 auto;
@@ -52,7 +52,6 @@
             .dashboard { grid-template-columns: 1fr; }
         }
 
-        /* 左側：プロフィールカード */
         .side-card {
             background: var(--card-bg);
             padding: 30px;
@@ -81,7 +80,6 @@
             font-size: 14px;
         }
 
-        /* コンテンツエリア */
         .main-content { display: flex; flex-direction: column; gap: 20px; }
         .status-card {
             background: var(--card-bg);
@@ -103,8 +101,8 @@
             background: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px 24px;
             border-radius: 12px;
+            padding: 12px 24px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
@@ -151,10 +149,36 @@
 <div id="login-form" class="login-screen">
     <div class="login-card">
         <h2 style="margin-bottom: 8px;">WaddyDog Portal</h2>
-        <p style="color: #64748b; margin-bottom: 24px;">社員認証を行ってください</p>
-        <input type="text" id="userId" placeholder="社員ID">
-        <input type="password" id="userPass" placeholder="パスワード">
-        <button id="loginBtn" class="btn" onclick="login()">ログイン</button>
+        
+        <div id="login-main">
+            <p style="color: #64748b; margin-bottom: 24px;">社員認証を行ってください</p>
+            <input type="text" id="userId" placeholder="社員ID">
+            <input type="password" id="userPass" placeholder="パスワード">
+            <button id="loginBtn" class="btn" onclick="login()">ログイン</button>
+            <button onclick="showForgotOptions()" style="background:none; border:none; color:#2563eb; cursor:pointer; font-size:13px; margin-top:15px; text-decoration:underline;">パスワードを忘れた場合</button>
+        </div>
+
+        <div id="forgot-options" class="hidden">
+            <h3 style="font-size:16px;">再設定方法を選択</h3>
+            <button class="btn" onclick="showAuthReset()" style="background:#1e293b;">Authenticatorで初期化</button>
+            <button class="btn" onclick="requestAdminReset()" style="background:#64748b;">管理者に初期化を依頼</button>
+            <button onclick="hideForgotOptions()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:12px; margin-top:10px;">キャンセル</button>
+        </div>
+
+        <div id="auth-reset-area" class="hidden">
+            <p style="font-size:13px;">6桁のコードを入力</p>
+            <input type="text" id="authCode" placeholder="6桁の数字" maxlength="6">
+            <button class="btn" onclick="executeAuthReset()">初期化を実行</button>
+            <button onclick="showForgotOptions()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:12px; margin-top:10px;">戻る</button>
+        </div>
+
+        <div id="admin-request-done" class="hidden">
+            <div style="font-size:40px; margin-bottom:10px;">📨</div>
+            <p style="font-size:14px; font-weight:bold;">管理者に通知しました</p>
+            <p style="font-size:12px; color:#64748b;">初期化完了後、社内メールで連絡します。</p>
+            <button onclick="location.reload()" class="btn">戻る</button>
+        </div>
+
         <p id="error" style="color: #ef4444; margin-top: 15px; font-size: 14px;"></p>
     </div>
 </div>
@@ -166,30 +190,17 @@
         <h2 id="welcome-msg" style="margin: 10px 0;">名前 さん</h2>
         <p style="color: #64748b; font-size: 14px;">WaddyDog Projectメンバー</p>
         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-        
-        <button onclick="window.location.href='pw-change.html?mode=anytime'" class="btn" style="background: #1e293b; font-size: 13px;">
-            🔒 パスワード変更
-        </button>
-
+        <button onclick="window.location.href='pw-change.html?mode=anytime'" class="btn" style="background: #1e293b; font-size: 13px;">🔒 パスワード変更</button>
         <button onclick="logout()" class="btn" style="background: #64748b;">ログアウト</button>
     </aside>
 
     <main class="main-content">
         <div class="status-card">
             <h3 style="margin-top: 0;">✉️ あなたへの個別指示</h3>
-            <div id="user-msg" class="memo-area">指示事項を読み込んでいます...</div>
+            <div id="user-msg" class="memo-area">読み込み中...</div>
         </div>
-
         <div class="status-card">
-            <h3 style="margin-top: 0;">📢 全社共通トピックス</h3>
-            <ul style="padding-left: 20px; color: #475569;">
-                <li>社員専用ページ完成！</li>
-                <li>パスワードの定期的な更新をお願いします</li>
-            </ul>
-        </div>
-
-        <div class="status-card">
-            <h3>⚙️ アイコン設定</h3>
+            <h3 style="margin-top: 0;">⚙️ アイコン設定</h3>
             <input type="text" id="new-img-url" placeholder="画像のURLを入力">
             <button onclick="updateIcon()" class="btn" style="background: #34a853;">更新</button>
         </div>
@@ -202,20 +213,19 @@
         <h2 id="pw-popup-title" style="margin:0 0 10px; color:var(--primary-color);"></h2>
         <p id="pw-popup-msg" style="margin:0 0 30px; color:#5f6368; font-size:14px; line-height:1.6;"></p>
         <button id="pw-next-btn" class="btn">変更画面へ進む</button>
-        <button id="pw-later-btn" onclick="closePwPopup()" style="background:none; border:none; color:#70757a; cursor:pointer; font-size:14px; text-decoration:underline; margin-top:15px; display:none;">
-            後で変更する
-        </button>
+        <button id="pw-later-btn" onclick="closePwPopup()" style="background:none; border:none; color:#70757a; cursor:pointer; font-size:14px; text-decoration:underline; margin-top:15px; display:none;">後で変更する</button>
     </div>
 </div>
 
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
+    const DEFAULT_PW = "WaddyDog2026"; // 指定の初期パスワード
 
-    // 読み込み時：ログイン済みなら表示、そうでなければメンテチェック
     window.addEventListener('DOMContentLoaded', async () => {
         const savedUser = JSON.parse(localStorage.getItem('waddy_user'));
+        const lastInputPass = localStorage.getItem('waddy_pass_input'); // ログイン時パス取得用
         if (savedUser) {
-            showMyPage(savedUser);
+            showMyPage(savedUser, lastInputPass);
         } else {
             checkMaintenance();
         }
@@ -225,9 +235,7 @@
         try {
             const res = await fetch(GAS_URL);
             const data = await res.json();
-            if (data.maintenance && !window.location.href.includes("maintenance.html")) {
-                window.location.href = "maintenance.html";
-            }
+            if (data.maintenance) window.location.href = "maintenance.html";
         } catch (e) {}
     }
 
@@ -246,41 +254,36 @@
 
             if (result.success) {
                 localStorage.setItem('waddy_id', id);
-                localStorage.setItem('waddy_pass', pass);
+                localStorage.setItem('waddy_pass_input', pass); // 入力したパスを一時保存
                 const userData = {
                     id: id,
                     name: result.name,
                     role: result.role,
-                    img: result.img || "https://via.placeholder.com/150",
+                    img: result.img,
                     message: result.message,
-                    lastPasswordUpdate: result.lastPasswordUpdate // GASから取得
+                    lastPasswordUpdate: result.lastPasswordUpdate
                 };
                 localStorage.setItem('waddy_user', JSON.stringify(userData));
-                showMyPage(userData);
+                showMyPage(userData, pass);
             } else {
                 error.innerText = result.message;
             }
-        } catch (e) {
-            error.innerText = "通信エラーが発生しました";
-        } finally {
-            btn.disabled = false; btn.innerText = "ログイン";
-        }
+        } catch (e) { error.innerText = "通信エラー"; }
+        finally { btn.disabled = false; btn.innerText = "ログイン"; }
     }
 
-    function showMyPage(user) {
+    function showMyPage(user, inputPass) {
         document.getElementById("login-form").classList.add("hidden");
         document.getElementById("staff-page").classList.remove("hidden");
-        
         document.getElementById("welcome-msg").innerText = user.name + " さん";
-        document.getElementById("user-role").innerText = user.role || "社員";
+        document.getElementById("user-role").innerText = user.role;
         document.getElementById("user-msg").innerText = user.message || "指示なし";
         document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
 
-        // パスワードチェック実行
-        checkPasswordStatus(user);
+        checkPasswordStatus(user, inputPass);
     }
 
-    function checkPasswordStatus(user) {
+    function checkPasswordStatus(user, inputPass) {
         const lastUpdateStr = user.lastPasswordUpdate;
         const popup = document.getElementById('pw-check-popup');
         const title = document.getElementById('pw-popup-title');
@@ -288,31 +291,68 @@
         const nextBtn = document.getElementById('pw-next-btn');
         const laterBtn = document.getElementById('pw-later-btn');
 
-        // ① 初回（初期パスワード）判定
-        if (!lastUpdateStr || lastUpdateStr === "") {
-            title.innerText = "初期パスワードの変更";
-            msg.innerText = "安全のため、初回ログイン時に独自のパスワードへ変更する必要があります。";
+        // ① 初回ログイン（日付空）または 初期パスワード使用時
+        if (!lastUpdateStr || lastUpdateStr === "" || inputPass === DEFAULT_PW) {
+            title.innerText = "パスワードの変更が必要です";
+            msg.innerText = "現在、初期パスワードまたはリセット状態です。安全のため独自のパスワードへ変更してください。";
             laterBtn.style.display = "none"; 
             nextBtn.onclick = () => { window.location.href = "pw-change.html?mode=force"; };
             popup.style.display = "flex";
             return;
         }
 
-        // ② 半年経過判定 (180日)
+        // ② 180日経過判定
         const lastUpdate = new Date(lastUpdateStr);
         const diffDays = Math.floor((new Date() - lastUpdate) / (1000 * 60 * 60 * 24));
         if (diffDays >= 180 && !sessionStorage.getItem('pw_skipped')) {
             title.innerText = "パスワードの更新時期";
-            msg.innerText = "前回の変更から180日以上経過しました。セキュリティのため更新をお願いします。";
+            msg.innerText = "前回の変更から180日以上経過しました。更新をお願いします。";
             laterBtn.style.display = "inline-block";
             nextBtn.onclick = () => { window.location.href = "pw-change.html?mode=optional"; };
             popup.style.display = "flex";
         }
     }
 
+    // --- パスワード忘れ対応用表示切り替え ---
+    function showForgotOptions() {
+        document.getElementById('login-main').classList.add('hidden');
+        document.getElementById('forgot-options').classList.remove('hidden');
+    }
+    function hideForgotOptions() {
+        document.getElementById('login-main').classList.remove('hidden');
+        document.getElementById('forgot-options').classList.add('hidden');
+    }
+    function showAuthReset() {
+        document.getElementById('forgot-options').classList.add('hidden');
+        document.getElementById('auth-reset-area').classList.remove('hidden');
+    }
+
+    async function requestAdminReset() {
+        let id = document.getElementById("userId").value;
+        if (!id) {
+            id = window.prompt("社員IDを入力してください。");
+            if (!id) return;
+        }
+        if(!confirm(`社員ID: ${id} で管理者に初期化を依頼しますか？`)) return;
+
+        try {
+            const res = await fetch(`${GAS_URL}?mode=requestAdminReset&id=${id}`);
+            const result = await res.json();
+            if (result.success) {
+                document.getElementById('forgot-options').classList.add('hidden');
+                document.getElementById('admin-request-done').classList.remove('hidden');
+            } else { alert(result.message); }
+        } catch (e) { alert("送信エラー"); }
+    }
+
     function closePwPopup() {
         sessionStorage.setItem('pw_skipped', 'true');
         document.getElementById('pw-check-popup').style.display = 'none';
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = "index.html";
     }
 
     async function updateIcon() {
@@ -333,11 +373,6 @@
                 alert("更新しました！");
             }
         } catch (e) { alert("失敗しました"); }
-    }
-
-    function logout() {
-        localStorage.clear();
-        window.location.href = "index.html";
     }
 </script>
 </body>

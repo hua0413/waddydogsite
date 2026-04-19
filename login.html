@@ -145,7 +145,7 @@
 
     // ページ読み込み時にも一度実行
     window.addEventListener('DOMContentLoaded', monitorMaintenance);
-
+window.onload = async () => {
         // 3. ログイン判定
         const savedUser = localStorage.getItem('waddy_user');
         const savedPass = localStorage.getItem('waddy_pass_input');

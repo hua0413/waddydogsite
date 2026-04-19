@@ -92,7 +92,7 @@
 </div>
 
 <div id="staff-page" class="dashboard hidden">
-    <aside class="side-card">
+    <button onclick="location.reload()" class="btn" style="background:#64748b; margin-bottom:10px;">🏠 ポータル更新</button>
         <img id="user-img" src="" class="avatar-circle">
         <h2 id="welcome-msg">名前 さん</h2>
         <a href="mail.html" class="btn pc-only" style="background:var(--accent-green);">📩 社内メールを確認</a>
@@ -197,6 +197,14 @@
 
     function logout() { localStorage.clear(); location.reload(); }
     function closePwPopup() { document.getElementById('pw-check-popup').style.display = 'none'; }
+    // ページ読み込み時に実行
+window.onload = () => {
+    const savedUser = localStorage.getItem('waddy_user');
+    const savedPass = localStorage.getItem('waddy_pass_input');
+    if (savedUser && savedPass) {
+        showMyPage(JSON.parse(savedUser), savedPass);
+    }
+};
 </script>
 </body>
 </html>

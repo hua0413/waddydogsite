@@ -93,6 +93,7 @@
 
 <div id="staff-page" class="dashboard hidden">
     <aside class="side-card">
+        <button onclick="home()" class="btn" style="background:#64748b;">🏠 ホームへ</button>
         <img id="user-img" src="" class="avatar-circle">
         <h2 id="welcome-msg">名前 さん</h2>
         <a href="mail.html" class="btn pc-only" style="background:var(--accent-green);">📩 社内メールを確認</a>
@@ -196,6 +197,7 @@
     }
 
     function logout() { localStorage.clear(); location.href = "index.html"; }
+    function home() { location.href = "index.html"; }
     function closePwPopup() { document.getElementById('pw-check-popup').style.display = 'none'; }
     // ページ読み込み時に実行
 window.onload = () => {

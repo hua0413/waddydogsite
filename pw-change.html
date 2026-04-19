@@ -7,7 +7,7 @@
     <style>
         :root {
             --primary-color: #2563eb;
-            --bg-color: #ffffff; /* 集中させるため背景は白 */
+            --bg-color: #ffffff;
             --text-main: #1e293b;
         }
 
@@ -71,7 +71,6 @@
         .btn-submit:disabled { background: #ccc; }
 
         #cancel-btn {
-            display: none; /* デフォルト非表示 */
             background: none;
             border: none;
             color: #70757a;
@@ -86,6 +85,8 @@
             font-size: 14px;
             min-height: 1.5em;
         }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -94,12 +95,11 @@
     <h1 id="page-title">パスワードの更新</h1>
     <p id="page-desc">新しいパスワードを設定してください。</p>
 
-    <div class="form-group">
+    <div id="old-pw-area" class="form-group">
         <label>現在のパスワード</label>
         <input type="password" id="oldPw" placeholder="現在のパスワードを入力">
+        <hr style="border:0; border-top:1px solid #eee; margin:30px 0;">
     </div>
-
-    <hr style="border:0; border-top:1px solid #eee; margin:30px 0;">
 
     <div class="form-group">
         <label>新しいパスワード</label>
@@ -120,18 +120,29 @@
 
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec";
+    
+    let currentMode = "";
+    let resetId = "";
 
-    // 読み込み時にキャンセルボタンの表示判定
     window.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
-        const mode = urlParams.get('mode');
+        currentMode = urlParams.get('mode');
+        resetId = urlParams.get('id'); // リセットモード時に使用
+        const authStatus = urlParams.get('auth');
+        
         const cancelBtn = document.getElementById('cancel-btn');
+        const oldPwArea = document.getElementById('old-pw-area');
 
-        if (mode === 'force') {
+        if (currentMode === 'force') {
             document.getElementById('page-title').innerText = "初期パスワードの変更";
-            cancelBtn.style.display = 'none'; // 初回はキャンセル不可
+            cancelBtn.style.display = 'none'; 
+        } else if (currentMode === 'reset' && authStatus === 'ok') {
+            // Authenticator認証後のパスワードリセット
+            document.getElementById('page-title').innerText = "パスワードの再設定";
+            document.getElementById('page-desc').innerText = "認証が完了しました。新しいパスワードを決めてください。";
+            oldPwArea.classList.add('hidden'); // 現在のパスワード入力を隠す
         } else {
-            cancelBtn.style.display = 'inline-block'; // それ以外はキャンセル可
+            cancelBtn.style.display = 'inline-block';
         }
     });
 
@@ -142,9 +153,12 @@
         const statusMsg = document.getElementById('status-msg');
         const btn = document.getElementById('submitBtn');
 
-        // 1. フロント側チェック
-        if (!oldPw || !newPw || !confirmPw) {
-            return showMsg("すべての項目を入力してください", "red");
+        // 入力チェック
+        if (currentMode !== 'reset' && !oldPw) {
+            return showMsg("現在のパスワードを入力してください", "red");
+        }
+        if (!newPw || !confirmPw) {
+            return showMsg("新しいパスワードを入力してください", "red");
         }
         if (newPw !== confirmPw) {
             return showMsg("新しいパスワードが一致しません", "red");
@@ -152,23 +166,23 @@
         if (newPw.length < 4) {
             return showMsg("新しいパスワードは4文字以上にしてください", "red");
         }
-        if (oldPw === newPw) {
-            return showMsg("現在と同じパスワードは使えません", "red");
-        }
 
-        const userData = JSON.parse(localStorage.getItem('waddy_user') || '{}');
-        const userId = localStorage.getItem('waddy_id');
+        // ユーザーIDの取得（ログイン済みならlocalStorageから、リセットならURLから）
+        const userId = resetId || localStorage.getItem('waddy_id');
+        if (!userId) return showMsg("エラー：ユーザー情報が見つかりません", "red");
 
-        if (!userId) return showMsg("セッション切れです。ログインし直してください。", "red");
-
-        // 送信開始
         btn.disabled = true;
-        showMsg("サーバーで照合中...", "blue");
+        showMsg("処理中...", "blue");
 
         try {
-            // GASへリクエスト（mode=updatePassword）
-            // ここでGAS側が「現在のパス照合」→「更新」を行う
-            const url = `${GAS_URL}?mode=updatePassword&id=${userId}&oldPw=${encodeURIComponent(oldPw)}&newPw=${encodeURIComponent(newPw)}`;
+            // mode引数を切り替える
+            // リセット時は強制上書き用のモード（例: resetPassword）を想定
+            let url = "";
+            if (currentMode === 'reset') {
+                url = `${GAS_URL}?mode=resetPassword&id=${userId}&newPw=${encodeURIComponent(newPw)}`;
+            } else {
+                url = `${GAS_URL}?mode=updatePassword&id=${userId}&oldPw=${encodeURIComponent(oldPw)}&newPw=${encodeURIComponent(newPw)}`;
+            }
             
             const res = await fetch(url);
             const result = await res.json();
@@ -180,7 +194,7 @@
                     window.location.href = "index.html"; 
                 }, 2000);
             } else {
-                showMsg("❌ " + result.message, "red"); // 「現在のパスが違います」等
+                showMsg("❌ " + result.message, "red");
                 btn.disabled = false;
             }
         } catch (e) {
@@ -195,9 +209,6 @@
         msgArea.style.color = color;
     }
 </script>
-
-</body>
-</html>
 
 </body>
 </html>

@@ -286,3 +286,17 @@ footer {
     font-size: 13px;
     border: 1px solid #f9dedc;
 }
+/* 最初はどちらも非表示にするための設定 */
+#login-form, #staff-page {
+    display: none; 
+}
+
+/* ログイン画面が必要な時だけ flex で表示 */
+.login-screen-active {
+    display: flex !important;
+}
+
+/* マイページが必要な時だけ grid で表示 */
+.dashboard-active {
+    display: grid !important;
+}

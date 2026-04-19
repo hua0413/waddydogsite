@@ -3,113 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>パスワードの更新 | Waddy Portal</title>
+    <title>パスワード変更 | WaddyDog Portal</title>
     <style>
-        body {
-            margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh;
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #ffffff; /* 集中させるため背景は白 */
+            --text-main: #1e293b;
         }
-        .container {
-            background: white; padding: 40px; border-radius: 24px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px;
-        }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 24px; color: #1a73e8; margin: 0; }
-        .header p { color: #5f6368; font-size: 14px; margin-top: 8px; }
-        
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 12px; font-weight: bold; color: #1a73e8; margin-bottom: 8px; margin-left: 4px; }
-        input {
-            width: 100%; padding: 14px; border: 1px solid #dadce0; border-radius: 12px;
-            box-sizing: border-box; font-size: 16px; transition: border-color 0.2s; outline: none;
-        }
-        input:focus { border-color: #1a73e8; }
 
-        .btn-update {
-            width: 100%; padding: 16px; background: #0b57d0; color: white; border: none;
-            border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 20px;
+        body {
+            margin: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
-        .btn-update:disabled { background: #ccc; cursor: not-allowed; }
-        
-        #status-msg { text-align: center; font-size: 14px; margin-top: 15px; min-height: 20px; }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 { font-size: 24px; color: var(--primary-color); margin-bottom: 10px; }
+        p { font-size: 14px; color: #64748b; margin-bottom: 30px; }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #dadce0;
+            border-radius: 12px;
+            box-sizing: border-box;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--primary-color); }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .btn-submit:disabled { background: #ccc; }
+
+        #cancel-btn {
+            display: none; /* デフォルト非表示 */
+            background: none;
+            border: none;
+            color: #70757a;
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+
+        #status-msg {
+            margin-top: 20px;
+            font-size: 14px;
+            min-height: 1.5em;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1>パスワードの更新</h1>
-        <p>セキュリティのため、新しいパスワードを設定する。</p>
-    </div>
+    <h1 id="page-title">パスワードの更新</h1>
+    <p id="page-desc">新しいパスワードを設定してください。</p>
 
     <div class="form-group">
         <label>現在のパスワード</label>
-        <input type="password" id="oldPw" placeholder="••••••••">
+        <input type="password" id="oldPw" placeholder="現在のパスワードを入力">
     </div>
 
-    <div style="height: 1px; background: #eee; margin: 25px 0;"></div>
+    <hr style="border:0; border-top:1px solid #eee; margin:30px 0;">
 
     <div class="form-group">
         <label>新しいパスワード</label>
-        <input type="password" id="newPw" placeholder="新しいパスワード">
+        <input type="password" id="newPw" placeholder="新しいパスワード（4文字以上）">
     </div>
 
     <div class="form-group">
-        <label>新しいパスワード（確認）</label>
+        <label>新しいパスワード（確認用）</label>
         <input type="password" id="confirmPw" placeholder="もう一度入力">
     </div>
 
-    <button class="btn-update" id="submitBtn" onclick="submitChange()">パスワードを更新する</button>
+    <button onclick="executeChange()" id="submitBtn" class="btn-submit">パスワードを確定して変更</button>
+    
+    <button id="cancel-btn" onclick="history.back()">キャンセルして戻る</button>
+
     <div id="status-msg"></div>
 </div>
 
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec";
 
-    async function submitChange() {
+    // 読み込み時にキャンセルボタンの表示判定
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode');
+        const cancelBtn = document.getElementById('cancel-btn');
+
+        if (mode === 'force') {
+            document.getElementById('page-title').innerText = "初期パスワードの変更";
+            cancelBtn.style.display = 'none'; // 初回はキャンセル不可
+        } else {
+            cancelBtn.style.display = 'inline-block'; // それ以外はキャンセル可
+        }
+    });
+
+    async function executeChange() {
         const oldPw = document.getElementById('oldPw').value;
         const newPw = document.getElementById('newPw').value;
         const confirmPw = document.getElementById('confirmPw').value;
-        const msgArea = document.getElementById('status-msg');
+        const statusMsg = document.getElementById('status-msg');
         const btn = document.getElementById('submitBtn');
 
-        // 入力チェック
-        if (!oldPw || !newPw || !confirmPw) return alert("すべての項目を入力してください");
-        if (newPw !== confirmPw) return alert("新しいパスワードが一致しません");
-        if (newPw.length < 4) return alert("パスワードは4文字以上にしてください");
-        if (oldPw === newPw) return alert("現在のパスワードと同じものは使用できません");
+        // 1. フロント側チェック
+        if (!oldPw || !newPw || !confirmPw) {
+            return showMsg("すべての項目を入力してください", "red");
+        }
+        if (newPw !== confirmPw) {
+            return showMsg("新しいパスワードが一致しません", "red");
+        }
+        if (newPw.length < 4) {
+            return showMsg("新しいパスワードは4文字以上にしてください", "red");
+        }
+        if (oldPw === newPw) {
+            return showMsg("現在と同じパスワードは使えません", "red");
+        }
 
         const userData = JSON.parse(localStorage.getItem('waddy_user') || '{}');
-        if (!userData.id) return alert("ログインセッションが切れました。再度ログインしてください。");
+        const userId = localStorage.getItem('waddy_id');
 
+        if (!userId) return showMsg("セッション切れです。ログインし直してください。", "red");
+
+        // 送信開始
         btn.disabled = true;
-        msgArea.innerText = "照合中...";
-        msgArea.style.color = "#1a73e8";
+        showMsg("サーバーで照合中...", "blue");
 
         try {
-            const url = `${GAS_URL}?mode=updatePassword&id=${userData.id}&oldPw=${encodeURIComponent(oldPw)}&newPw=${encodeURIComponent(newPw)}`;
+            // GASへリクエスト（mode=updatePassword）
+            // ここでGAS側が「現在のパス照合」→「更新」を行う
+            const url = `${GAS_URL}?mode=updatePassword&id=${userId}&oldPw=${encodeURIComponent(oldPw)}&newPw=${encodeURIComponent(newPw)}`;
+            
             const res = await fetch(url);
             const result = await res.json();
 
             if (result.success) {
-                msgArea.innerText = "✅ 更新完了！再ログインしてください。";
-                msgArea.style.color = "green";
+                showMsg("✅ 更新完了！再ログインしてください。", "green");
                 setTimeout(() => {
-                    localStorage.clear(); // 情報をクリアしてログイン画面へ
+                    localStorage.clear();
                     window.location.href = "index.html"; 
                 }, 2000);
             } else {
-                msgArea.innerText = "❌ " + result.message;
-                msgArea.style.color = "red";
+                showMsg("❌ " + result.message, "red"); // 「現在のパスが違います」等
                 btn.disabled = false;
             }
         } catch (e) {
-            msgArea.innerText = "❌ 通信エラーが発生しました。";
-            msgArea.style.color = "red";
+            showMsg("❌ 通信エラーが発生しました。", "red");
             btn.disabled = false;
         }
     }
+
+    function showMsg(text, color) {
+        const msgArea = document.getElementById('status-msg');
+        msgArea.innerText = text;
+        msgArea.style.color = color;
+    }
 </script>
+
+</body>
+</html>
 
 </body>
 </html>

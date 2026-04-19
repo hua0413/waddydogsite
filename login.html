@@ -130,7 +130,7 @@
         try {
             const res = await fetch(`${GAS_URL}?mode=checkMaintenance`);
             const data = await res.json();
-            if (data.ismaintenance === true) {
+            if (data.isMaintenance === true) {
                 window.location.href = "maintenance.html";
                 return true;
             }

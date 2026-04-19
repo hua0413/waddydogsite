@@ -200,7 +200,7 @@
             authBtn.innerText = "✅ 成功！";
             setTimeout(() => {
                 window.location.href = `pw-change.html?mode=reset&id=${id}&auth=ok`;
-            }, 500); // 0.5秒だけ「成功」を見せてから移動
+            }, 1000); // 0.5秒だけ「成功」を見せてから移動
         } else {
             alert(result.message || "コードが違います");
             // 失敗したら元に戻す

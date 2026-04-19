@@ -59,36 +59,27 @@
             <button id="loginBtn" class="btn" onclick="login()">ログイン</button>
             <button onclick="showForgotOptions()" style="background:none; border:none; color:var(--primary-color); cursor:pointer; font-size:13px; margin-top:15px; text-decoration:underline;">パスワードを忘れた場合</button>
         </div>
-
         <div id="forgot-options" class="hidden">
-            <h3>パスワードの再設定方法を選択</h3>
+            <h3>再設定方法を選択</h3>
             <button class="btn" onclick="showAuthRegister()" style="background:#1e293b;">Google Authenticatorで認証</button>
             <button class="btn" onclick="handleAdminReset()" style="background:#64748b;">管理者に初期化を依頼</button>
             <button onclick="hideForgotOptions()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:12px; margin-top:15px;">キャンセル</button>
         </div>
-
         <div id="auth-register-guide" class="hidden">
             <h3>アプリの登録</h3>
             <div style="background:#f1f5f9; padding:15px; border-radius:10px; margin:10px 0;">
-                <p style="font-size:12px;">以下のQRコードを認証アプリでスキャンしてください</p>
+                <p style="font-size:12px;">QRコードをスキャンしてください</p>
                 <img id="auth-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=otpauth://totp/WaddyPortal?secret=JBSWY3DPEHPK3PXP&issuer=WaddyDog" style="margin:10px 0;">
-                <p style="font-size:12px;">または以下のコードを認証アプリに入力してください</p>
-                <p style="font-size:15px; color:#64748b;">コード名：WaddyPortal</p>
                 <p style="font-size:15px; color:#64748b;">キー：JBSWY3DPEHPK3PXP</p>
             </div>
             <button class="btn" onclick="showAuthInput()">次へ</button>
-            <button onclick="showForgotOptions()" style="border:none; background:none; font-size:12px; color:#94a3b8; margin-top:10px;">戻る</button>
         </div>
-
         <div id="auth-reset-area" class="hidden">
             <p>6桁の認証コードを入力</p>
             <input type="text" id="authCode" class="auth-input" placeholder="000000" maxlength="6">
             <button id="authVerifyBtn" class="btn" onclick="executeAuthVerify()">認証して進む</button>
-            <button onclick="showAuthRegister()" style="border:none; background:none; font-size:12px; color:#94a3b8; margin-top:10px;">戻る</button>
         </div>
-
         <div id="admin-request-done" class="hidden">
-            <div style="font-size:40px;">📨</div>
             <h3>依頼を送信しました</h3>
             <button onclick="location.reload()" class="btn">戻る</button>
         </div>
@@ -114,9 +105,8 @@
         </div>
         <div class="status-card" style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px;">
             <h3>⚙️ プロフィール設定</h3>
-            <p style="font-size: 13px; color: #666;">アイコン画像のURLを入力してください</p>
-            <input type="text" id="new-img-url" placeholder="https://example.com/image.jpg" style="font-size: 14px;">
-            <button onclick="updateIcon()" class="btn" style="background: #34a853; margin-top: 5px;">アイコンを更新</button>
+            <input type="text" id="new-img-url" placeholder="https://example.com/image.jpg">
+            <button onclick="updateIcon()" class="btn" style="background: #34a853;">アイコンを更新</button>
         </div>
     </main>
 </div>
@@ -126,7 +116,7 @@
         <h2 id="pw-popup-title"></h2>
         <p id="pw-popup-msg" style="font-size:14px; color:#666;"></p>
         <button id="pw-next-btn" class="btn">変更画面へ</button>
-        <button id="pw-later-btn" onclick="closePwPopup()" style="display:none; background:none; border:none; color:#999; margin-top:10px; cursor:pointer;">後で</button>
+        <button id="pw-later-btn" onclick="closePwPopup()" style="display:none; background:none; border:none; color:#999; margin-top:10px;">後で</button>
     </div>
 </div>
 
@@ -135,22 +125,30 @@
     const DEFAULT_PW = "pass1234";
     const ADMIN_ID = "W001";
 
-    window.onload = async () => {
-        // 1. メンテナンスチェック
+    // メンテナンス状態をチェックする関数を独立させる
+    async function checkMaintenance() {
         try {
-            const maintenanceRes = await fetch(`${GAS_URL}?mode=checkMaintenance`);
-            const maintenanceStatus = await maintenanceRes.json();
-            
-            // GASからのデータ名「maintenance」に修正（小文字開始）
-            if (maintenanceStatus.maintenance === true) {
+            const res = await fetch(`${GAS_URL}?mode=checkMaintenance`);
+            const data = await res.json();
+            if (data.maintenance === true) {
                 window.location.href = "maintenance.html";
-                return;
+                return true;
             }
         } catch (e) {
-            console.error("メンテナンスチェック失敗。そのまま続行します。");
+            console.error("メンテナンスチェック失敗");
         }
+        return false;
+    }
 
-        // 2. ログイン判定と表示処理
+    window.onload = async () => {
+        // 1. 初回のメンテナンスチェック
+        const isMainte = await checkMaintenance();
+        if (isMainte) return;
+
+        // 2. 60秒ごとにメンテナンス状態を監視
+        setInterval(checkMaintenance, 60000);
+
+        // 3. ログイン判定
         const savedUser = localStorage.getItem('waddy_user');
         const savedPass = localStorage.getItem('waddy_pass_input');
         
@@ -165,6 +163,7 @@
         }
     };
 
+    // --- 以下、既存の関数群 ---
     async function login() {
         const id = document.getElementById("userId").value;
         const pass = document.getElementById("userPass").value;

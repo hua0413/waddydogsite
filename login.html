@@ -107,6 +107,12 @@
             <h3>✉️ 個別指示</h3>
             <div id="user-msg" class="memo-area"></div>
         </div>
+        <div class="status-card" style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px;">
+    <h3>⚙️ プロフィール設定</h3>
+    <p style="font-size: 13px; color: #666;">アイコン画像のURLを入力してください</p>
+    <input type="text" id="new-img-url" placeholder="https://example.com/image.jpg" style="font-size: 14px;">
+    <button onclick="updateIcon()" class="btn" style="background: #34a853; margin-top: 5px;">アイコンを更新</button>
+</div>
     </main>
 </div>
 
@@ -200,6 +206,31 @@
     function logout() { localStorage.clear(); location.href = "index.html"; }
     function home() { location.href = "index.html"; }
     function closePwPopup() { document.getElementById('pw-check-popup').style.display = 'none'; }
+     async function updateIcon() {
+        const newUrl = document.getElementById('new-img-url').value;
+        const savedId = localStorage.getItem('waddy_id');
+
+        if (!newUrl) return alert("URLを入力してください");
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ id: savedId, imgUrl: newUrl })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                let userData = JSON.parse(localStorage.getItem('waddy_user'));
+                userData.img = newUrl; 
+                localStorage.setItem('waddy_user', JSON.stringify(userData));
+                
+                document.getElementById('user-img').src = newUrl;
+                alert("アイコンを更新しました！");
+            }
+        } catch (e) {
+            alert("更新に失敗しました。");
+        }
+    }
     // ページ読み込み時に実行
 window.onload = () => {
     const savedUser = localStorage.getItem('waddy_user');

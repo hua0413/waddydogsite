@@ -184,8 +184,8 @@
             const { db, collection, addDoc, serverTimestamp } = window.firebaseUtils;
             await addDoc(collection(db, "messages"), {
                 senderId: "SYSTEM_BOT",
-                receiverId: ADMIN_ID,
-                title: "【緊急】パスワード初期化依頼",
+                receiverIds: ADMIN_ID,
+                subject: "【緊急】パスワード初期化依頼",
                 body: `社員ID: ${id} からの依頼です。`,
                 timestamp: serverTimestamp(),
                 isRead: false

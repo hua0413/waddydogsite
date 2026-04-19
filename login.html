@@ -149,9 +149,8 @@ window.onload = () => {
         setTimeout(() => {
     // 3秒経ったら「読み込み中」を消す
     document.getElementById("loading").style.display = "none";
-    // その後にログイン画面などを出す（上のコードと同じ）
-    document.getElementById("login-form").classList.add("login-screen-active");
 }, 3000);
+        document.getElementById("login-form").classList.add("login-screen-active");
     }
 };
 

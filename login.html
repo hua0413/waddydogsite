@@ -164,13 +164,13 @@ window.onload = () => {
     }
 
     function showMyPage(user, inputPass) {
-        document.getElementById("login-form").classList.add("hidden");
-        document.getElementById("staff-page").classList.remove("hidden");
-        document.getElementById("welcome-msg").innerText = user.name + " さん";
-        document.getElementById("user-msg").innerText = user.message || "指示なし";
-        document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
-        checkPasswordStatus(user, inputPass);
-    }
+    document.getElementById("login-form").classList.remove("login-screen-active");
+    document.getElementById("staff-page").classList.add("dashboard-active");
+    document.getElementById("welcome-msg").innerText = user.name + " さん";
+    document.getElementById("user-msg").innerText = user.message || "指示なし";
+    document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
+    checkPasswordStatus(user, inputPass);
+}
 
     function checkPasswordStatus(user, inputPass) {
         const popup = document.getElementById('pw-check-popup');

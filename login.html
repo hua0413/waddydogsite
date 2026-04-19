@@ -180,23 +180,40 @@
     function showAuthInput() { document.getElementById('auth-register-guide').classList.add('hidden'); document.getElementById('auth-reset-area').classList.remove('hidden'); }
 
     async function executeAuthVerify() {
-    const id = document.getElementById("userId").value;
+    const authBtn = document.getElementById("authVerifyBtn"); // ボタンを取得
     const code = document.getElementById("authCode").value;
-    const err = document.getElementById("error");
+    const id = document.getElementById("userId").value;
+
+    if (!code) return alert("コードを入力してください");
+
+    // --- 演出開始 ---
+    const originalText = authBtn.innerText; // 元の文字（認証して進む）を覚えておく
+    authBtn.innerText = "⏳ 認証中...";      // 文字を変える
+    authBtn.disabled = true;                // ボタンを押せないようにする
+    authBtn.style.opacity = "0.7";          // ちょっと薄くする
 
     try {
-        // GASにコードが正しいか聞きに行く
         const res = await fetch(`${GAS_URL}?mode=verifyAuth&code=${code}`);
         const result = await res.json();
 
         if (result.success) {
-            alert("認証成功！");
-            window.location.href = `pw-change.html?mode=reset&id=${id}&auth=ok`;
+            authBtn.innerText = "✅ 成功！";
+            setTimeout(() => {
+                window.location.href = `pw-change.html?mode=reset&id=${id}&auth=ok`;
+            }, 500); // 0.5秒だけ「成功」を見せてから移動
         } else {
             alert(result.message || "コードが違います");
+            // 失敗したら元に戻す
+            authBtn.innerText = originalText;
+            authBtn.disabled = false;
+            authBtn.style.opacity = "1";
         }
     } catch (e) {
         alert("通信エラーが発生しました");
+        // エラーでも元に戻す
+        authBtn.innerText = originalText;
+        authBtn.disabled = false;
+        authBtn.style.opacity = "1";
     }
 }
 

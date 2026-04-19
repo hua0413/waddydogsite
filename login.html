@@ -141,7 +141,10 @@ window.onload = () => {
         showMyPage(JSON.parse(savedUser), savedPass);
     } else {
         // 未ログインの場合：ログイン画面をパッと出す
-        document.getElementById("login-form").classList.add("login-screen-active");
+        setTimeout(() => {
+    // ここに実行したい処理を書く
+    document.getElementById("login-form").classList.add("login-screen-active");
+}, 2000);
     }
 };
 

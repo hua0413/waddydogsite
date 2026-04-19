@@ -20,7 +20,7 @@
             color: var(--text-main);
         }
 
-        /* ログイン画面のデザイン */
+        /* ログイン共通カード設定 */
         .login-screen {
             display: flex;
             justify-content: center;
@@ -38,7 +38,7 @@
             text-align: center;
         }
 
-        /* マイページ全体のデザイン */
+        /* マイページ用グリッド */
         .dashboard {
             max-width: 1200px;
             margin: 0 auto;
@@ -137,6 +137,17 @@
             background: white; padding: 35px; border-radius: 24px;
             width: 90%; max-width: 400px; text-align: center;
         }
+
+        /* Authenticator系スタイル */
+        .auth-input {
+            text-align: center; letter-spacing: 8px; font-size: 24px;
+            font-weight: bold; color: var(--primary-color);
+        }
+        .qr-placeholder {
+            background: #f1f5f9; border: 2px dashed #cbd5e1;
+            padding: 20px; border-radius: 12px; margin: 15px 0;
+            font-size: 12px; color: #64748b;
+        }
     </style>
 </head>
 <body>
@@ -159,24 +170,44 @@
         </div>
 
         <div id="forgot-options" class="hidden">
-            <h3 style="font-size:16px;">再設定方法を選択</h3>
-            <button class="btn" onclick="showAuthReset()" style="background:#1e293b;">Authenticatorで初期化</button>
-            <button class="btn" onclick="requestAdminReset()" style="background:#64748b;">管理者に初期化を依頼</button>
-            <button onclick="hideForgotOptions()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:12px; margin-top:10px;">キャンセル</button>
+            <h3 style="font-size:16px; margin-bottom: 20px;">再設定方法を選択</h3>
+            <button class="btn" onclick="showAuthRegister()" style="background:#1e293b;">Authenticatorで認証</button>
+            <button class="btn" onclick="handleAdminReset()" style="background:#64748b;">管理者に初期化を依頼</button>
+            <button onclick="hideForgotOptions()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:12px; margin-top:15px;">キャンセル</button>
         </div>
 
-        <div id="auth-reset-area" class="hidden">
-            <p style="font-size:13px;">6桁のコードを入力</p>
-            <input type="text" id="authCode" placeholder="6桁の数字" maxlength="6">
-            <button class="btn" onclick="executeAuthReset()">初期化を実行</button>
+        <div id="auth-register-guide" class="hidden">
+            <h3 style="font-size:16px; margin-bottom: 10px;">アプリの登録</h3>
+            <p style="font-size:12px; color:#64748b; text-align:left; line-height:1.4;">
+                1. 認証アプリを起動します。<br>
+                2. 「QRコードをスキャン」を選択してください。<br>
+                3. 管理から配布されたQRコードを読み取ります。
+            </p>
+            <div class="qr-placeholder">
+                <p>【社内共通認証QRコード】</p>
+                <div style="font-size:40px;">📱</div>
+                <p>アプリで読み取ってください</p>
+            </div>
+            <button class="btn" onclick="showAuthInput()">設定済みなので次へ</button>
             <button onclick="showForgotOptions()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:12px; margin-top:10px;">戻る</button>
         </div>
 
+        <div id="auth-reset-area" class="hidden">
+            <p style="font-size:14px; font-weight:bold;">認証コードを入力</p>
+            <p style="font-size:12px; color:#64748b; margin-bottom:15px;">アプリに表示される6桁の数字を入力してください</p>
+            <input type="text" id="authCode" class="auth-input" placeholder="000000" maxlength="6">
+            <button id="authVerifyBtn" class="btn" onclick="executeAuthVerify()">認証して変更ページへ</button>
+            <button onclick="showAuthRegister()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:12px; margin-top:10px;">登録画面へ戻る</button>
+        </div>
+
         <div id="admin-request-done" class="hidden">
-            <div style="font-size:40px; margin-bottom:10px;">📨</div>
-            <p style="font-size:14px; font-weight:bold;">管理者に通知しました</p>
-            <p style="font-size:12px; color:#64748b;">初期化完了後、社内メールで連絡します。</p>
-            <button onclick="location.reload()" class="btn">戻る</button>
+            <div style="font-size:50px; margin-bottom:15px;">📨</div>
+            <h3 style="margin-bottom:10px;">依頼を送信しました</h3>
+            <p style="font-size:14px; color:#475569; line-height:1.6;">
+                管理者にパスワード初期化を通知しました。<br>
+                完了までしばらくお待ちください。
+            </p>
+            <button onclick="location.reload()" class="btn" style="background:#64748b; margin-top:20px;">ホームへ戻る</button>
         </div>
 
         <p id="error" style="color: #ef4444; margin-top: 15px; font-size: 14px;"></p>
@@ -219,11 +250,11 @@
 
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
-    const DEFAULT_PW = "WaddyDog2026"; // 指定の初期パスワード
+    const DEFAULT_PW = "WaddyDog2026";
 
     window.addEventListener('DOMContentLoaded', async () => {
         const savedUser = JSON.parse(localStorage.getItem('waddy_user'));
-        const lastInputPass = localStorage.getItem('waddy_pass_input'); // ログイン時パス取得用
+        const lastInputPass = localStorage.getItem('waddy_pass_input');
         if (savedUser) {
             showMyPage(savedUser, lastInputPass);
         } else {
@@ -254,14 +285,10 @@
 
             if (result.success) {
                 localStorage.setItem('waddy_id', id);
-                localStorage.setItem('waddy_pass_input', pass); // 入力したパスを一時保存
+                localStorage.setItem('waddy_pass_input', pass);
                 const userData = {
-                    id: id,
-                    name: result.name,
-                    role: result.role,
-                    img: result.img,
-                    message: result.message,
-                    lastPasswordUpdate: result.lastPasswordUpdate
+                    id: id, name: result.name, role: result.role, img: result.img,
+                    message: result.message, lastPasswordUpdate: result.lastPasswordUpdate
                 };
                 localStorage.setItem('waddy_user', JSON.stringify(userData));
                 showMyPage(userData, pass);
@@ -279,61 +306,86 @@
         document.getElementById("user-role").innerText = user.role;
         document.getElementById("user-msg").innerText = user.message || "指示なし";
         document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
-
         checkPasswordStatus(user, inputPass);
     }
 
     function checkPasswordStatus(user, inputPass) {
         const lastUpdateStr = user.lastPasswordUpdate;
         const popup = document.getElementById('pw-check-popup');
-        const title = document.getElementById('pw-popup-title');
-        const msg = document.getElementById('pw-popup-msg');
         const nextBtn = document.getElementById('pw-next-btn');
         const laterBtn = document.getElementById('pw-later-btn');
 
-        // ① 初回ログイン（日付空）または 初期パスワード使用時
         if (!lastUpdateStr || lastUpdateStr === "" || inputPass === DEFAULT_PW) {
-            title.innerText = "パスワードの変更が必要です";
-            msg.innerText = "現在、初期パスワードまたはリセット状態です。安全のため独自のパスワードへ変更してください。";
+            document.getElementById('pw-popup-title').innerText = "パスワードの変更が必要です";
+            document.getElementById('pw-popup-msg').innerText = "安全のため独自のパスワードへ変更してください。";
             laterBtn.style.display = "none"; 
             nextBtn.onclick = () => { window.location.href = "pw-change.html?mode=force"; };
             popup.style.display = "flex";
             return;
         }
 
-        // ② 180日経過判定
         const lastUpdate = new Date(lastUpdateStr);
         const diffDays = Math.floor((new Date() - lastUpdate) / (1000 * 60 * 60 * 24));
         if (diffDays >= 180 && !sessionStorage.getItem('pw_skipped')) {
-            title.innerText = "パスワードの更新時期";
-            msg.innerText = "前回の変更から180日以上経過しました。更新をお願いします。";
+            document.getElementById('pw-popup-title').innerText = "パスワードの更新時期";
+            document.getElementById('pw-popup-msg').innerText = "前回の変更から180日以上経過しました。更新をお願いします。";
             laterBtn.style.display = "inline-block";
             nextBtn.onclick = () => { window.location.href = "pw-change.html?mode=optional"; };
             popup.style.display = "flex";
         }
     }
 
-    // --- パスワード忘れ対応用表示切り替え ---
+    // --- パスワード忘れフロー ---
     function showForgotOptions() {
         document.getElementById('login-main').classList.add('hidden');
         document.getElementById('forgot-options').classList.remove('hidden');
+        document.getElementById('error').innerText = "";
     }
     function hideForgotOptions() {
         document.getElementById('login-main').classList.remove('hidden');
         document.getElementById('forgot-options').classList.add('hidden');
     }
-    function showAuthReset() {
+
+    // 登録ガイド画面を表示
+    function showAuthRegister() {
+        const id = document.getElementById("userId").value;
+        if (!id) return alert("先に社員IDを入力してください");
         document.getElementById('forgot-options').classList.add('hidden');
+        document.getElementById('auth-reset-area').classList.add('hidden');
+        document.getElementById('auth-register-guide').classList.remove('hidden');
+    }
+
+    // コード入力画面を表示
+    function showAuthInput() {
+        document.getElementById('auth-register-guide').classList.add('hidden');
         document.getElementById('auth-reset-area').classList.remove('hidden');
     }
 
-    async function requestAdminReset() {
-        let id = document.getElementById("userId").value;
-        if (!id) {
-            id = window.prompt("社員IDを入力してください。");
-            if (!id) return;
-        }
-        if(!confirm(`社員ID: ${id} で管理者に初期化を依頼しますか？`)) return;
+    async function executeAuthVerify() {
+        const id = document.getElementById("userId").value;
+        const code = document.getElementById("authCode").value;
+        const btn = document.getElementById("authVerifyBtn");
+
+        if (code.length !== 6) return alert("6桁のコードを入力してください");
+        
+        btn.disabled = true; btn.innerText = "認証中...";
+
+        // 本来はGAS等でコード検証。今回は固定値123456でテスト。
+        setTimeout(() => {
+            if (code === "123456") {
+                alert("認証成功！パスワード再設定画面へ移動します。");
+                window.location.href = `pw-change.html?mode=reset&id=${id}&auth=ok`;
+            } else {
+                alert("コードが正しくありません");
+                btn.disabled = false; btn.innerText = "認証して変更ページへ";
+            }
+        }, 1000);
+    }
+
+    async function handleAdminReset() {
+        const id = document.getElementById("userId").value;
+        if (!id) return alert("社員IDを入力してください");
+        if (!confirm(`社員ID: ${id} のパスワード初期化を依頼しますか？`)) return;
 
         try {
             const res = await fetch(`${GAS_URL}?mode=requestAdminReset&id=${id}`);
@@ -350,10 +402,7 @@
         document.getElementById('pw-check-popup').style.display = 'none';
     }
 
-    function logout() {
-        localStorage.clear();
-        window.location.href = "index.html";
-    }
+    function logout() { localStorage.clear(); window.location.href = "index.html"; }
 
     async function updateIcon() {
         const newUrl = document.getElementById('new-img-url').value;

@@ -188,7 +188,7 @@
                 subject: "【緊急】パスワード初期化依頼",
                 body: `社員ID: ${id} からの依頼です。`,
                 timestamp: serverTimestamp(),
-                isRead: false
+                readBy: []
             });
             document.getElementById('forgot-options').classList.add('hidden');
             document.getElementById('admin-request-done').classList.remove('hidden');

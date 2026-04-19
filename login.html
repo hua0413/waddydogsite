@@ -132,7 +132,14 @@
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec";
     const DEFAULT_PW = "pass1234";
     const ADMIN_ID = "W001";
-
+    // ページ読み込み時に実行
+window.onload = () => {
+    const savedUser = localStorage.getItem('waddy_user');
+    const savedPass = localStorage.getItem('waddy_pass_input');
+    if (savedUser && savedPass) {
+        showMyPage(JSON.parse(savedUser), savedPass);
+    }
+};
     async function login() {
         const id = document.getElementById("userId").value;
         const pass = document.getElementById("userPass").value;
@@ -263,14 +270,6 @@
             alert("更新に失敗しました。");
         }
     }
-    // ページ読み込み時に実行
-window.onload = () => {
-    const savedUser = localStorage.getItem('waddy_user');
-    const savedPass = localStorage.getItem('waddy_pass_input');
-    if (savedUser && savedPass) {
-        showMyPage(JSON.parse(savedUser), savedPass);
-    }
-};
 </script>
 </body>
 </html>

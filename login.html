@@ -146,7 +146,7 @@
         if (isMainte) return;
 
         // 2. 60秒ごとにメンテナンス状態を監視
-        setInterval(checkMaintenance, 60000);
+        setInterval(checkMaintenance, 20000);
 
         // 3. ログイン判定
         const savedUser = localStorage.getItem('waddy_user');

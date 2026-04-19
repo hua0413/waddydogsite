@@ -127,7 +127,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         currentMode = urlParams.get('mode');
-        resetId = urlParams.get('id'); // リセットモード時に使用
+        resetId = urlParams.get('id');
         const authStatus = urlParams.get('auth');
         
         const cancelBtn = document.getElementById('cancel-btn');
@@ -137,10 +137,16 @@
             document.getElementById('page-title').innerText = "初期パスワードの変更";
             cancelBtn.style.display = 'none'; 
         } else if (currentMode === 'reset' && authStatus === 'ok') {
-            // Authenticator認証後のパスワードリセット
+            // --- ここを修正：リセットモードの時の戻り先を index.html に固定する ---
             document.getElementById('page-title').innerText = "パスワードの再設定";
             document.getElementById('page-desc').innerText = "認証が完了しました。新しいパスワードを決めてください。";
-            oldPwArea.classList.add('hidden'); // 現在のパスワード入力を隠す
+            oldPwArea.classList.add('hidden');
+            
+            // history.back() ではなく login.html へ直接飛ばすように書き換え
+            cancelBtn.onclick = () => {
+                window.location.href = "login.html";
+            };
+            // -----------------------------------------------------------
         } else {
             cancelBtn.style.display = 'inline-block';
         }

@@ -126,27 +126,25 @@
     const ADMIN_ID = "W001";
 
     // メンテナンス状態をチェックする関数を独立させる
-    async function checkMaintenance() {
+    async function monitorMaintenance() {
         try {
-            const res = await fetch(`${GAS_URL}?mode=checkMaintenance`);
-            const data = await res.json();
-            if (data.isMaintenance === true) {
+            const response = await fetch(GAS_URL);
+            const result = await response.json();
+
+            // 2. もしメンテナンスが「解除（false）」されていたら
+            if (result.maintenance === true) {
+                // 自動的にホーム画面へリダイレクト！
                 window.location.href = "maintenance.html";
-                return true;
             }
         } catch (e) {
-            console.error("メンテナンスチェック失敗");
+            console.error("ステータスチェック失敗", e);
         }
-        return false;
     }
 
-    window.onload = async () => {
-        // 1. 初回のメンテナンスチェック
-        const isMainte = await checkMaintenance();
-        if (isMainte) return;
+    setInterval(monitorMaintenance, 20000);
 
-        // 2. 60秒ごとにメンテナンス状態を監視
-        setInterval(checkMaintenance, 20000);
+    // ページ読み込み時にも一度実行
+    window.addEventListener('DOMContentLoaded', monitorMaintenance);
 
         // 3. ログイン判定
         const savedUser = localStorage.getItem('waddy_user');

@@ -195,7 +195,7 @@
         } catch (e) { alert("送信エラー"); }
     }
 
-    function logout() { localStorage.clear(); location.reload(); }
+    function logout() { localStorage.clear(); location.href = "index.html"; }
     function closePwPopup() { document.getElementById('pw-check-popup').style.display = 'none'; }
     // ページ読み込み時に実行
 window.onload = () => {

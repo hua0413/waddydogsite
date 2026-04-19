@@ -24,6 +24,20 @@
         window.firebaseUtils = { db, collection, addDoc, serverTimestamp };
     </script>
     <style>
+        /* --- 追加：初期状態は両方とも完全に隠す --- */
+#login-form, #staff-page {
+    display: none; 
+}
+
+/* --- 追加：ログイン画面を表示する用の設定 --- */
+.login-screen-active {
+    display: flex !important;
+}
+
+/* --- 追加：マイページを表示する用の設定 --- */
+.dashboard-active {
+    display: grid !important;
+}
         :root {
             --primary-color: #2563eb; --bg-color: #f8fafc; --card-bg: #ffffff;
             --text-main: #1e293b; --accent-yellow: #f59e0b; --accent-green: #059669;

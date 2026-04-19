@@ -140,19 +140,23 @@
 
     window.onload = async () => {
     // 1. まずメンテナンスチェックを最初に行う
+    window.onload = async () => {
+    // 1. まずメンテナンスチェックを最初に行う
     try {
         const maintenanceRes = await fetch(`${GAS_URL}?mode=checkMaintenance`);
         const maintenanceStatus = await maintenanceRes.json();
         
         if (maintenanceStatus.isMaintenance) {
-            // メンテナンス中なら専用ページへ飛ばす、または画面を書き換える
-           window.location.href = "maintenance.html";
+            // メンテナンス中なら即座に移動して、この後の処理を中止する
+            window.location.href = "maintenance.html";
+            return; // ← これを追加：ここから下の「ログインチェック」を実行させない
         }
     } catch (e) {
         console.error("メンテナンスチェック失敗。そのまま続行します。");
     }
 
-    // 2. メンテナンス中でなければ、通常のログインチェック（3秒待機など）へ
+    // 2. メンテナンス中でなければ、通常の処理へ
+    // （以下、あなたの書いたコードと同じでOK！）
     const savedUser = localStorage.getItem('waddy_user');
     const savedPass = localStorage.getItem('waddy_pass_input');
     
@@ -163,7 +167,7 @@
         setTimeout(() => {
             document.getElementById("loading").style.display = "none";
             document.getElementById("login-form").classList.remove("hidden");
-        }, 1500);
+        }, 1500); // 1.5秒に変更したんですね、テンポが良くていいと思います！
     }
 };
 

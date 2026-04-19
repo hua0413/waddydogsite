@@ -44,12 +44,12 @@
             margin: 0 auto;
             padding: 40px 20px;
             display: grid;
-            grid-template-columns: 300px 1fr; /* 左にプロフィール、右にコンテンツ */
+            grid-template-columns: 300px 1fr;
             gap: 30px;
         }
 
         @media (max-width: 768px) {
-            .dashboard { grid-template-columns: 1fr; } /* スマホでは縦並び */
+            .dashboard { grid-template-columns: 1fr; }
         }
 
         /* 左側：プロフィールカード */
@@ -66,8 +66,8 @@
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            margin: 0 auto 20px;
             border: 4px solid var(--primary-color);
+            margin: 0 auto 20px;
             object-fit: cover;
             background: #eee;
         }
@@ -81,13 +81,8 @@
             font-size: 14px;
         }
 
-        /* 右側：コンテンツエリア */
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
+        /* コンテンツエリア */
+        .main-content { display: flex; flex-direction: column; gap: 20px; }
         .status-card {
             background: var(--card-bg);
             padding: 25px;
@@ -95,24 +90,6 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        /* 進捗バーの豪華版 */
-        .progress-wrapper {
-            background: #e2e8f0;
-            border-radius: 10px;
-            height: 24px;
-            margin: 15px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            background: linear-gradient(90deg, #2563eb, #60a5fa);
-            height: 100%;
-            width: 0%;
-            transition: width 1.5s cubic-bezier(0.1, 0, 0, 1);
-        }
-
-        /* メッセージ板のデザイン */
         .memo-area {
             background: #fffbeb;
             border-left: 6px solid var(--accent-yellow);
@@ -122,7 +99,6 @@
             line-height: 1.6;
         }
 
-        /* 共通ボタン */
         .btn {
             background: var(--primary-color);
             color: white;
@@ -131,58 +107,44 @@
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: 0.2s;
+            display: block;
+            width: 100%;
+            margin-top: 10px;
         }
-
         .btn:hover { transform: translateY(-2px); opacity: 0.9; }
 
         input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            box-sizing: border-box;
+            width: 100%; padding: 12px; margin: 10px 0;
+            border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;
         }
 
         .hidden { display: none; }
-        /* 追加：ホーム戻るボタンのデザイン */
-.back-to-home {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    text-decoration: none;
-    color: #64748b;
-    font-size: 14px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    transition: 0.3s;
-    padding: 8px 16px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
 
-.back-to-home:hover {
-    color: var(--primary-color);
-    transform: translateX(-3px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
+        .back-to-home {
+            position: absolute; top: 20px; left: 20px; text-decoration: none;
+            color: #64748b; font-size: 14px; font-weight: bold;
+            display: flex; align-items: center; gap: 5px;
+            padding: 8px 16px; background: white; border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
 
-/* スマホでは少し位置を調整 */
-@media (max-width: 768px) {
-    .back-to-home {
-        top: 10px;
-        left: 10px;
-    }
-}
+        /* ポップアップ用CSS */
+        #pw-check-popup {
+            display: none; position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            align-items: center; justify-content: center;
+        }
+        .popup-card {
+            background: white; padding: 35px; border-radius: 24px;
+            width: 90%; max-width: 400px; text-align: center;
+        }
     </style>
 </head>
 <body>
+
     <a href="index.html" class="back-to-home">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         ホームへ戻る
     </a>
 
@@ -192,7 +154,7 @@
         <p style="color: #64748b; margin-bottom: 24px;">社員認証を行ってください</p>
         <input type="text" id="userId" placeholder="社員ID">
         <input type="password" id="userPass" placeholder="パスワード">
-        <button id="loginBtn" class="btn" style="width: 100%; margin-top: 10px;" onclick="login()">ログイン</button>
+        <button id="loginBtn" class="btn" onclick="login()">ログイン</button>
         <p id="error" style="color: #ef4444; margin-top: 15px; font-size: 14px;"></p>
     </div>
 </div>
@@ -204,137 +166,71 @@
         <h2 id="welcome-msg" style="margin: 10px 0;">名前 さん</h2>
         <p style="color: #64748b; font-size: 14px;">WaddyDog Projectメンバー</p>
         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-        <button onclick="logout()" class="btn" style="background: #64748b; width: 100%;">ログアウト</button>
+        
+        <button onclick="window.location.href='pw-change.html?mode=anytime'" class="btn" style="background: #1e293b; font-size: 13px;">
+            🔒 パスワード変更
+        </button>
+
+        <button onclick="logout()" class="btn" style="background: #64748b;">ログアウト</button>
     </aside>
 
     <main class="main-content">
-        <div class="mail-access-container">
-    <div id="pc-only-area" style="display: none;">
-        <button class="btn-mail" onclick="location.href='mail.html'">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-            </svg>
-            社内メールを確認
-        </button>
-    </div>
-
-    <div id="mobile-warning" style="display: none;">
-        <div class="mobile-lock-msg">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="5" y="11" width="14" height="10" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-            ⚠️メール機能はPCからのみ利用可能です
-        </div>
-    </div>
-</div>
-
-<script>
-    function checkDevice() {
-        const pcArea = document.getElementById('pc-only-area');
-        const mobileWarning = document.getElementById('mobile-warning');
-        const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
-
-        if (isMobile) {
-            pcArea.style.display = 'none';
-            mobileWarning.style.display = 'block';
-        } else {
-            pcArea.style.display = 'block';
-            mobileWarning.style.display = 'none';
-        }
-    }
-    window.addEventListener('load', checkDevice);
-    window.addEventListener('resize', checkDevice);
-</script>
-
         <div class="status-card">
             <h3 style="margin-top: 0;">✉️ あなたへの個別指示</h3>
-            <div id="user-msg" class="memo-area">
-                指示事項を読み込んでいます...
-            </div>
+            <div id="user-msg" class="memo-area">指示事項を読み込んでいます...</div>
         </div>
 
         <div class="status-card">
             <h3 style="margin-top: 0;">📢 全社共通トピックス</h3>
             <ul style="padding-left: 20px; color: #475569;">
                 <li>社員専用ページ完成！</li>
-                <li>投稿は考えてリクエストするように</li>
+                <li>パスワードの定期的な更新をお願いします</li>
             </ul>
         </div>
-        <div class="status-card" style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px;">
-    <h3>⚙️ プロフィール設定</h3>
-    <p style="font-size: 13px; color: #666;">アイコン画像のURLを入力してください</p>
-    <input type="text" id="new-img-url" placeholder="https://example.com/image.jpg" style="font-size: 14px;">
-    <button onclick="updateIcon()" class="btn" style="background: #34a853; margin-top: 5px;">アイコンを更新</button>
-</div>
+
+        <div class="status-card">
+            <h3>⚙️ アイコン設定</h3>
+            <input type="text" id="new-img-url" placeholder="画像のURLを入力">
+            <button onclick="updateIcon()" class="btn" style="background: #34a853;">更新</button>
+        </div>
     </main>
+</div>
+
+<div id="pw-check-popup">
+    <div class="popup-card">
+        <div style="font-size:50px; margin-bottom:15px;">🔐</div>
+        <h2 id="pw-popup-title" style="margin:0 0 10px; color:var(--primary-color);"></h2>
+        <p id="pw-popup-msg" style="margin:0 0 30px; color:#5f6368; font-size:14px; line-height:1.6;"></p>
+        <button id="pw-next-btn" class="btn">変更画面へ進む</button>
+        <button id="pw-later-btn" onclick="closePwPopup()" style="background:none; border:none; color:#70757a; cursor:pointer; font-size:14px; text-decoration:underline; margin-top:15px; display:none;">
+            後で変更する
+        </button>
+    </div>
 </div>
 
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec"; 
-async function checkMaintenance() {
-    try {
-        const response = await fetch(GAS_URL);
-        const result = await response.json();
 
-        // メンテナンス中の場合
-        if (result.maintenance === true) {
-            // maintenance.html へ強制移動（ただし自分自身がそうならループするので除外）
-            if (!window.location.href.includes("maintenance.html")) {
+    // 読み込み時：ログイン済みなら表示、そうでなければメンテチェック
+    window.addEventListener('DOMContentLoaded', async () => {
+        const savedUser = JSON.parse(localStorage.getItem('waddy_user'));
+        if (savedUser) {
+            showMyPage(savedUser);
+        } else {
+            checkMaintenance();
+        }
+    });
+
+    async function checkMaintenance() {
+        try {
+            const res = await fetch(GAS_URL);
+            const data = await res.json();
+            if (data.maintenance && !window.location.href.includes("maintenance.html")) {
                 window.location.href = "maintenance.html";
             }
-        }
-    } catch (e) {
-        console.error("メンテナンスチェック失敗", e);
-    }
-}
-
-// ページ読み込み時に実行
-window.addEventListener('DOMContentLoaded', checkMaintenance);
-
-// ページ内移動（ハッシュ変更など）も監視したい場合はこれ
-window.addEventListener('hashchange', checkMaintenance);
-    // ページ読み込み時の処理
-window.addEventListener('DOMContentLoaded', async () => {
-    const savedUser = JSON.parse(localStorage.getItem('waddy_user'));
-    const savedId = localStorage.getItem('waddy_id');
-    const savedPass = localStorage.getItem('waddy_pass');
-
-    // 1. まずはブラウザの記憶で即座に表示（これでアイコンは一旦出る）
-    if (savedUser) {
-        showMyPage(savedUser);
+        } catch (e) {}
     }
 
-    // 2. 最新データを取得して同期する
-    if (savedId && savedPass) {
-        try {
-            const response = await fetch(`${GAS_URL}?id=${savedId}&pass=${savedPass}`);
-            const result = await response.json();
-            
-            if (result.success) {
-                // ここがポイント：新しいデータに画像があればそれを使う。
-                // もし新しいデータに画像がなければ、今表示している(savedUserの)画像を維持する。
-                const updatedUser = {
-                    name: result.name,
-                    role: result.role,
-                    img: result.img || (savedUser ? savedUser.img : "https://via.placeholder.com/150"),
-                    message: result.message,
-                    progress: result.progress
-                };
-
-                // ブラウザの記憶を最新版（画像維持）で上書き
-                localStorage.setItem('waddy_user', JSON.stringify(updatedUser));
-                
-                // 画面を最新状態で更新
-                showMyPage(updatedUser);
-            }
-        } catch (e) {
-            console.error("同期失敗:", e);
-        }
-    }
-});
-
-    // ログイン処理
     async function login() {
         const id = document.getElementById("userId").value;
         const pass = document.getElementById("userPass").value;
@@ -342,16 +238,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         const error = document.getElementById("error");
 
         if(!id || !pass) { error.innerText = "入力してください"; return; }
-
-        btn.disabled = true;
-        btn.innerText = "認証中...";
+        btn.disabled = true; btn.innerText = "認証中...";
 
         try {
             const response = await fetch(`${GAS_URL}?id=${id}&pass=${pass}`);
             const result = await response.json();
 
             if (result.success) {
-                // データの保存
                 localStorage.setItem('waddy_id', id);
                 localStorage.setItem('waddy_pass', pass);
                 const userData = {
@@ -360,11 +253,9 @@ window.addEventListener('DOMContentLoaded', async () => {
                     role: result.role,
                     img: result.img || "https://via.placeholder.com/150",
                     message: result.message,
-                    progress: result.progress
+                    lastPasswordUpdate: result.lastPasswordUpdate // GASから取得
                 };
                 localStorage.setItem('waddy_user', JSON.stringify(userData));
-
-                // 画面切り替え
                 showMyPage(userData);
             } else {
                 error.innerText = result.message;
@@ -372,12 +263,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         } catch (e) {
             error.innerText = "通信エラーが発生しました";
         } finally {
-            btn.disabled = false;
-            btn.innerText = "ログイン";
+            btn.disabled = false; btn.innerText = "ログイン";
         }
     }
 
-    // マイページ表示（共通）
     function showMyPage(user) {
         document.getElementById("login-form").classList.add("hidden");
         document.getElementById("staff-page").classList.remove("hidden");
@@ -386,60 +275,70 @@ window.addEventListener('DOMContentLoaded', async () => {
         document.getElementById("user-role").innerText = user.role || "社員";
         document.getElementById("user-msg").innerText = user.message || "指示なし";
         document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
-        
-        const p = user.progress || 0;
-        setTimeout(() => {
-            const fill = document.getElementById("progress-fill");
-            if(fill) fill.style.width = p + "%";
-            const text = document.getElementById("progress-text");
-            if(text) text.innerText = p;
-        }, 300);
+
+        // パスワードチェック実行
+        checkPasswordStatus(user);
     }
 
-    // アイコン更新
-    async function updateIcon() {
-        const newUrl = document.getElementById('new-img-url').value;
-        const savedId = localStorage.getItem('waddy_id');
+    function checkPasswordStatus(user) {
+        const lastUpdateStr = user.lastPasswordUpdate;
+        const popup = document.getElementById('pw-check-popup');
+        const title = document.getElementById('pw-popup-title');
+        const msg = document.getElementById('pw-popup-msg');
+        const nextBtn = document.getElementById('pw-next-btn');
+        const laterBtn = document.getElementById('pw-later-btn');
 
-        if (!newUrl) return alert("URLを入力してください");
+        // ① 初回（初期パスワード）判定
+        if (!lastUpdateStr || lastUpdateStr === "") {
+            title.innerText = "初期パスワードの変更";
+            msg.innerText = "安全のため、初回ログイン時に独自のパスワードへ変更する必要があります。";
+            laterBtn.style.display = "none"; 
+            nextBtn.onclick = () => { window.location.href = "pw-change.html?mode=force"; };
+            popup.style.display = "flex";
+            return;
+        }
 
-        try {
-            const response = await fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({ id: savedId, imgUrl: newUrl })
-            });
-            const result = await response.json();
-
-            if (result.success) {
-                let userData = JSON.parse(localStorage.getItem('waddy_user'));
-                userData.img = newUrl; 
-                localStorage.setItem('waddy_user', JSON.stringify(userData));
-                
-                document.getElementById('user-img').src = newUrl;
-                alert("アイコンを更新しました！");
-            }
-        } catch (e) {
-            alert("更新に失敗しました。");
+        // ② 半年経過判定 (180日)
+        const lastUpdate = new Date(lastUpdateStr);
+        const diffDays = Math.floor((new Date() - lastUpdate) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 180 && !sessionStorage.getItem('pw_skipped')) {
+            title.innerText = "パスワードの更新時期";
+            msg.innerText = "前回の変更から180日以上経過しました。セキュリティのため更新をお願いします。";
+            laterBtn.style.display = "inline-block";
+            nextBtn.onclick = () => { window.location.href = "pw-change.html?mode=optional"; };
+            popup.style.display = "flex";
         }
     }
 
-    // ログアウト
+    function closePwPopup() {
+        sessionStorage.setItem('pw_skipped', 'true');
+        document.getElementById('pw-check-popup').style.display = 'none';
+    }
+
+    async function updateIcon() {
+        const newUrl = document.getElementById('new-img-url').value;
+        const id = localStorage.getItem('waddy_id');
+        if (!newUrl) return alert("URLを入力してください");
+        try {
+            const res = await fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ id: id, imgUrl: newUrl })
+            });
+            const result = await res.json();
+            if (result.success) {
+                let userData = JSON.parse(localStorage.getItem('waddy_user'));
+                userData.img = newUrl;
+                localStorage.setItem('waddy_user', JSON.stringify(userData));
+                document.getElementById('user-img').src = newUrl;
+                alert("更新しました！");
+            }
+        } catch (e) { alert("失敗しました"); }
+    }
+
     function logout() {
-        localStorage.removeItem('waddy_user');
-        localStorage.removeItem('waddy_id');
-        localStorage.removeItem('waddy_pass');
+        localStorage.clear();
         window.location.href = "index.html";
     }
-    // メールのメニューをクリックした時の動き
-document.getElementById('menu-mail').addEventListener('click', () => {
-    // ログイン情報（localStorage）があるか最終確認
-    if (localStorage.getItem('waddy_user')) {
-        window.location.href = "mail.html";
-    } else {
-        alert("ログインセッションが切れました。ログインし直してください。");
-        window.location.href = "login.html"; // ログイン画面へ
-    }
-});
 </script>
 </body>
 </html>

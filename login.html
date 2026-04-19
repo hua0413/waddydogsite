@@ -133,6 +133,7 @@
     const ADMIN_ID = "W001";
     // ページ読み込み時に実行
 window.onload = () => {
+    document.getElementById("login-form").classList.remove("login-screen-active");
     const savedUser = localStorage.getItem('waddy_user');
     const savedPass = localStorage.getItem('waddy_pass_input');
     
@@ -141,10 +142,7 @@ window.onload = () => {
         showMyPage(JSON.parse(savedUser), savedPass);
     } else {
         // 未ログインの場合：ログイン画面をパッと出す
-        setTimeout(() => {
-    // ここに実行したい処理を書く
     document.getElementById("login-form").classList.add("login-screen-active");
-}, 2000);
     }
 };
 

@@ -138,29 +138,40 @@
     const DEFAULT_PW = "pass1234";
     const ADMIN_ID = "W001";
 
-    window.onload = () => {
-        const savedUser = localStorage.getItem('waddy_user');
-        const savedPass = localStorage.getItem('waddy_pass_input');
+    window.onload = async () => {
+    // 1. まずメンテナンスチェックを最初に行う
+    try {
+        const maintenanceRes = await fetch(`${GAS_URL}?mode=checkMaintenance`);
+        const maintenanceStatus = await maintenanceRes.json();
         
-        if (savedUser && savedPass) {
-            // ログイン済みの場合はローディングを消して即マイページ表示
-            document.getElementById("loading").style.display = "none";
-            showMyPage(JSON.parse(savedUser), savedPass);
-        } else {
-            // 未ログインの場合は3秒待機してからログインフォームを表示
-            setTimeout(() => {
-                document.getElementById("loading").style.display = "none";
-                document.getElementById("login-form").classList.remove("hidden");
-            }, 1500);
+        if (maintenanceStatus.isMaintenance) {
+            // メンテナンス中なら専用ページへ飛ばす、または画面を書き換える
+            location.href="pw-change.html?mode=force";
         }
-    };
+    } catch (e) {
+        console.error("メンテナンスチェック失敗。そのまま続行します。");
+    }
+
+    // 2. メンテナンス中でなければ、通常のログインチェック（3秒待機など）へ
+    const savedUser = localStorage.getItem('waddy_user');
+    const savedPass = localStorage.getItem('waddy_pass_input');
+    
+    if (savedUser && savedPass) {
+        document.getElementById("loading").style.display = "none";
+        showMyPage(JSON.parse(savedUser), savedPass);
+    } else {
+        setTimeout(() => {
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("login-form").classList.remove("hidden");
+        }, 3000);
+    }
+};
 
     async function login() {
         const id = document.getElementById("userId").value;
         const pass = document.getElementById("userPass").value;
         const err = document.getElementById("error");
         if(!id || !pass) return;
-
         try {
             const res = await fetch(`${GAS_URL}?id=${id}&pass=${pass}`);
             const result = await res.json();

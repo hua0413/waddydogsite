@@ -146,7 +146,7 @@
         const maintenanceRes = await fetch(`${GAS_URL}?mode=checkMaintenance`);
         const maintenanceStatus = await maintenanceRes.json();
         
-        if (maintenanceStatus.isMaintenance) {
+        if (maintenanceStatus.Maintenance) {
             // メンテナンス中なら即座に移動して、この後の処理を中止する
             window.location.href = "maintenance.html";
             return; // ← これを追加：ここから下の「ログインチェック」を実行させない

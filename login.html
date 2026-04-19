@@ -46,7 +46,6 @@
     </style>
 </head>
 <body>
-
 <div id="login-form" class="login-screen">
     <div class="login-card">
         <h2>WaddyDog Portal</h2>
@@ -136,10 +135,16 @@
 window.onload = () => {
     const savedUser = localStorage.getItem('waddy_user');
     const savedPass = localStorage.getItem('waddy_pass_input');
+    
     if (savedUser && savedPass) {
+        // ログイン済みの場合
         showMyPage(JSON.parse(savedUser), savedPass);
+    } else {
+        // 未ログインの場合：ログイン画面をパッと出す
+        document.getElementById("login-form").classList.add("login-screen-active");
     }
 };
+
     async function login() {
         const id = document.getElementById("userId").value;
         const pass = document.getElementById("userPass").value;

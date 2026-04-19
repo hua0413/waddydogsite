@@ -24,20 +24,6 @@
         window.firebaseUtils = { db, collection, addDoc, serverTimestamp };
     </script>
     <style>
-        /* --- 追加：初期状態は両方とも完全に隠す --- */
-#login-form, #staff-page {
-    display: none; 
-}
-
-/* --- 追加：ログイン画面を表示する用の設定 --- */
-.login-screen-active {
-    display: flex !important;
-}
-
-/* --- 追加：マイページを表示する用の設定 --- */
-.dashboard-active {
-    display: grid !important;
-}
         :root {
             --primary-color: #2563eb; --bg-color: #f8fafc; --card-bg: #ffffff;
             --text-main: #1e293b; --accent-yellow: #f59e0b; --accent-green: #059669;
@@ -60,7 +46,7 @@
     </style>
 </head>
 <body>
-<div id="login-form">
+<div id="login-form" class="login-screen">
     <div class="login-card">
         <h2>WaddyDog Portal</h2>
         
@@ -107,7 +93,7 @@
     </div>
 </div>
 
-<div id="staff-page">
+<div id="staff-page" class="dashboard hidden">
     <aside class="side-card">
         <button onclick="home()" class="btn" style="background:#cccccc;">🏠 ホームへ</button>
         <div style="height: 25px;"></div>
@@ -145,7 +131,7 @@
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec";
     const DEFAULT_PW = "pass1234";
     const ADMIN_ID = "W001";
- // ページ読み込み時に実行
+    // ページ読み込み時に実行
 window.onload = () => {
     const savedUser = localStorage.getItem('waddy_user');
     const savedPass = localStorage.getItem('waddy_pass_input');
@@ -154,21 +140,10 @@ window.onload = () => {
         // ログイン済みの場合
         showMyPage(JSON.parse(savedUser), savedPass);
     } else {
-        // 未ログインの場合：ログインフォーム用のアクティブクラスを付与
+        // 未ログインの場合：ログイン画面をパッと出す
         document.getElementById("login-form").classList.add("login-screen-active");
     }
 };
-
-function showMyPage(user, inputPass) {
-    // ログイン画面を隠し、マイページを表示する（クラスの付け替え）
-    document.getElementById("login-form").classList.remove("login-screen-active");
-    document.getElementById("staff-page").classList.add("dashboard-active");
-    
-    document.getElementById("welcome-msg").innerText = user.name + " さん";
-    document.getElementById("user-msg").innerText = user.message || "指示なし";
-    document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
-    checkPasswordStatus(user, inputPass);
-}
 
     async function login() {
         const id = document.getElementById("userId").value;
@@ -186,6 +161,15 @@ function showMyPage(user, inputPass) {
                 showMyPage(result, pass);
             } else { err.innerText = result.message; }
         } catch (e) { err.innerText = "通信エラー"; }
+    }
+
+    function showMyPage(user, inputPass) {
+        document.getElementById("login-form").classList.add("hidden");
+        document.getElementById("staff-page").classList.remove("hidden");
+        document.getElementById("welcome-msg").innerText = user.name + " さん";
+        document.getElementById("user-msg").innerText = user.message || "指示なし";
+        document.getElementById("user-img").src = user.img || "https://via.placeholder.com/150";
+        checkPasswordStatus(user, inputPass);
     }
 
     function checkPasswordStatus(user, inputPass) {

@@ -404,7 +404,7 @@
 
     async function handleAdminReset() {
         const id = document.getElementById("userId").value;
-        if (!id) return alert("社員IDを入力してください");
+        if (!id) return alert("最初の入力画面で社員IDを入力してください");
         if (!confirm(`社員ID: ${id} のパスワード初期化を依頼しますか？`)) return;
 
         try {

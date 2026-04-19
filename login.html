@@ -146,7 +146,7 @@
         
         if (maintenanceStatus.isMaintenance) {
             // メンテナンス中なら専用ページへ飛ばす、または画面を書き換える
-            location.href="pw-change.html?mode=force";
+           window.location.href = "maintenance.html";
         }
     } catch (e) {
         console.error("メンテナンスチェック失敗。そのまま続行します。");

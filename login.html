@@ -8,16 +8,14 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ここにお手持ちのFirebase Configを貼り付けてください
         const firebaseConfig = {
-    apiKey: "AIzaSyCWP-3yPtIoghRcF0AZwqFTMfNvH1kpZ9o",
-    authDomain: "waddy-portal.firebaseapp.com",
-    projectId: "waddy-portal",
-    storageBucket: "waddy-portal.firebasestorage.app",
-    messagingSenderId: "89997369271",
-    appId: "1:89997369271:web:ea882a0832054a71655232"
-  };
-
+            apiKey: "AIzaSyCWP-3yPtIoghRcF0AZwqFTMfNvH1kpZ9o",
+            authDomain: "waddy-portal.firebaseapp.com",
+            projectId: "waddy-portal",
+            storageBucket: "waddy-portal.firebasestorage.app",
+            messagingSenderId: "89997369271",
+            appId: "1:89997369271:web:ea882a0832054a71655232"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -43,13 +41,18 @@
         #pw-check-popup { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; }
         .popup-card { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 350px; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        
+        /* ローディング用スタイル */
+        #loading { text-align: center; padding-top: 15vh; width: 100%; position: absolute; }
     </style>
 </head>
 <body>
-<div id="login-form" class="login-screen">
-    <div id="loading" style="text-align:center; padding-top:100px;">
+
+<div id="loading">
     <p>読み込み中...</p>
 </div>
+
+<div id="login-form" class="login-screen hidden">
     <div class="login-card">
         <h2>WaddyDog Portal</h2>
         
@@ -70,12 +73,12 @@
         <div id="auth-register-guide" class="hidden">
             <h3>アプリの登録</h3>
             <div style="background:#f1f5f9; padding:15px; border-radius:10px; margin:10px 0;">
-        <p style="font-size:12px;">以下のQRコードを認証アプリでスキャンしてください</p>
-        <img id="auth-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=otpauth://totp/WaddyPortal?secret=JBSWY3DPEHPK3PXP&issuer=WaddyDog" style="margin:10px 0;">
-        <p style="font-size:12px;">または以下のコードを認証アプリに入力してください</p>
-        <p style="font-size:15px; color:#64748b;">コード名：WaddyPortal</p>
-        <p style="font-size:15px; color:#64748b;">キー：JBSWY3DPEHPK3PXP</p>
-    </div>
+                <p style="font-size:12px;">以下のQRコードを認証アプリでスキャンしてください</p>
+                <img id="auth-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=otpauth://totp/WaddyPortal?secret=JBSWY3DPEHPK3PXP&issuer=WaddyDog" style="margin:10px 0;">
+                <p style="font-size:12px;">または以下のコードを認証アプリに入力してください</p>
+                <p style="font-size:15px; color:#64748b;">コード名：WaddyPortal</p>
+                <p style="font-size:15px; color:#64748b;">キー：JBSWY3DPEHPK3PXP</p>
+            </div>
             <button class="btn" onclick="showAuthInput()">次へ</button>
             <button onclick="showForgotOptions()" style="border:none; background:none; font-size:12px; color:#94a3b8; margin-top:10px;">戻る</button>
         </div>
@@ -113,11 +116,11 @@
             <div id="user-msg" class="memo-area"></div>
         </div>
         <div class="status-card" style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px;">
-    <h3>⚙️ プロフィール設定</h3>
-    <p style="font-size: 13px; color: #666;">アイコン画像のURLを入力してください</p>
-    <input type="text" id="new-img-url" placeholder="https://example.com/image.jpg" style="font-size: 14px;">
-    <button onclick="updateIcon()" class="btn" style="background: #34a853; margin-top: 5px;">アイコンを更新</button>
-</div>
+            <h3>⚙️ プロフィール設定</h3>
+            <p style="font-size: 13px; color: #666;">アイコン画像のURLを入力してください</p>
+            <input type="text" id="new-img-url" placeholder="https://example.com/image.jpg" style="font-size: 14px;">
+            <button onclick="updateIcon()" class="btn" style="background: #34a853; margin-top: 5px;">アイコンを更新</button>
+        </div>
     </main>
 </div>
 
@@ -134,25 +137,23 @@
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwIguaS571VqZfqvw19_LkkU124yR-XB4TB1R0MBpiQpDGZHNQDB6b_Y_cB1NzjSpeL/exec";
     const DEFAULT_PW = "pass1234";
     const ADMIN_ID = "W001";
-    // ページ読み込み時に実行
-window.onload = () => {
-    document.getElementById("login-form").classList.add("hidden");
-    const savedUser = localStorage.getItem('waddy_user');
-    const savedPass = localStorage.getItem('waddy_pass_input');
-    
-    if (savedUser && savedPass) {
-        // ログイン済みの場合
-        showMyPage(JSON.parse(savedUser), savedPass);
-        document.getElementById("loading").style.display = "none";
-    } else {
-        // 未ログインの場合：ログイン画面をパッと出す
-        setTimeout(() => {
-    // 3秒経ったら「読み込み中」を消す
-    document.getElementById("loading").style.display = "none";
-            document.getElementById("login-form").classList.remove("hidden");
-}, 3000);
-    }
-};
+
+    window.onload = () => {
+        const savedUser = localStorage.getItem('waddy_user');
+        const savedPass = localStorage.getItem('waddy_pass_input');
+        
+        if (savedUser && savedPass) {
+            // ログイン済みの場合はローディングを消して即マイページ表示
+            document.getElementById("loading").style.display = "none";
+            showMyPage(JSON.parse(savedUser), savedPass);
+        } else {
+            // 未ログインの場合は3秒待機してからログインフォームを表示
+            setTimeout(() => {
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("login-form").classList.remove("hidden");
+            }, 3000);
+        }
+    };
 
     async function login() {
         const id = document.getElementById("userId").value;
@@ -184,7 +185,6 @@ window.onload = () => {
     function checkPasswordStatus(user, inputPass) {
         const popup = document.getElementById('pw-check-popup');
         const nextBtn = document.getElementById('pw-next-btn');
-        const laterBtn = document.getElementById('pw-later-btn');
         
         if (inputPass === DEFAULT_PW) {
             document.getElementById('pw-popup-title').innerText = "パスワード変更が必要です";
@@ -194,49 +194,45 @@ window.onload = () => {
         }
     }
 
-    // --- Authenticator & Firebase系 ---
     function showForgotOptions() { document.getElementById('login-main').classList.add('hidden'); document.getElementById('forgot-options').classList.remove('hidden'); document.getElementById('auth-register-guide').classList.add('hidden');}
     function hideForgotOptions() { document.getElementById('login-main').classList.remove('hidden'); document.getElementById('forgot-options').classList.add('hidden'); }
     function showAuthRegister() { document.getElementById('forgot-options').classList.add('hidden'); document.getElementById('auth-register-guide').classList.remove('hidden'); document.getElementById('auth-reset-area').classList.add('hidden');}
     function showAuthInput() { document.getElementById('auth-register-guide').classList.add('hidden'); document.getElementById('auth-reset-area').classList.remove('hidden'); }
 
     async function executeAuthVerify() {
-    const authBtn = document.getElementById("authVerifyBtn"); // ボタンを取得
-    const code = document.getElementById("authCode").value;
-    const id = document.getElementById("userId").value;
+        const authBtn = document.getElementById("authVerifyBtn");
+        const code = document.getElementById("authCode").value;
+        const id = document.getElementById("userId").value;
 
-    if (!code) return alert("コードを入力してください");
+        if (!code) return alert("コードを入力してください");
 
-    // --- 演出開始 ---
-    const originalText = authBtn.innerText; // 元の文字（認証して進む）を覚えておく
-    authBtn.innerText = "⏳ 認証中...";      // 文字を変える
-    authBtn.disabled = true;                // ボタンを押せないようにする
-    authBtn.style.opacity = "0.7";          // ちょっと薄くする
+        const originalText = authBtn.innerText;
+        authBtn.innerText = "⏳ 認証中...";
+        authBtn.disabled = true;
+        authBtn.style.opacity = "0.7";
 
-    try {
-        const res = await fetch(`${GAS_URL}?mode=verifyAuth&code=${code}`);
-        const result = await res.json();
+        try {
+            const res = await fetch(`${GAS_URL}?mode=verifyAuth&code=${code}`);
+            const result = await res.json();
 
-        if (result.success) {
-            authBtn.innerText = "✅ 成功！";
-            setTimeout(() => {
-                window.location.href = `pw-change.html?mode=reset&id=${id}&auth=ok`;
-            }, 1000); // 0.5秒だけ「成功」を見せてから移動
-        } else {
-            alert(result.message || "コードが違います");
-            // 失敗したら元に戻す
+            if (result.success) {
+                authBtn.innerText = "✅ 成功！";
+                setTimeout(() => {
+                    window.location.href = `pw-change.html?mode=reset&id=${id}&auth=ok`;
+                }, 1000);
+            } else {
+                alert(result.message || "コードが違います");
+                authBtn.innerText = originalText;
+                authBtn.disabled = false;
+                authBtn.style.opacity = "1";
+            }
+        } catch (e) {
+            alert("通信エラーが発生しました");
             authBtn.innerText = originalText;
             authBtn.disabled = false;
             authBtn.style.opacity = "1";
         }
-    } catch (e) {
-        alert("通信エラーが発生しました");
-        // エラーでも元に戻す
-        authBtn.innerText = originalText;
-        authBtn.disabled = false;
-        authBtn.style.opacity = "1";
     }
-}
 
     async function handleAdminReset() {
         const id = document.getElementById("userId").value;
@@ -259,10 +255,10 @@ window.onload = () => {
     function logout() { localStorage.clear(); location.href = "index.html"; }
     function home() { location.href = "index.html"; }
     function closePwPopup() { document.getElementById('pw-check-popup').style.display = 'none'; }
-     async function updateIcon() {
+    
+    async function updateIcon() {
         const newUrl = document.getElementById('new-img-url').value;
         const savedId = localStorage.getItem('waddy_id');
-
         if (!newUrl) return alert("URLを入力してください");
 
         try {
@@ -276,7 +272,6 @@ window.onload = () => {
                 let userData = JSON.parse(localStorage.getItem('waddy_user'));
                 userData.img = newUrl; 
                 localStorage.setItem('waddy_user', JSON.stringify(userData));
-                
                 document.getElementById('user-img').src = newUrl;
                 alert("アイコンを更新しました！");
             }

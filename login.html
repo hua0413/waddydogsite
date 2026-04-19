@@ -180,13 +180,25 @@
     function showAuthInput() { document.getElementById('auth-register-guide').classList.add('hidden'); document.getElementById('auth-reset-area').classList.remove('hidden'); }
 
     async function executeAuthVerify() {
-        const id = document.getElementById("userId").value;
-        const code = document.getElementById("authCode").value;
-        if (code === "123456") { // 共通コード
+    const id = document.getElementById("userId").value;
+    const code = document.getElementById("authCode").value;
+    const err = document.getElementById("error");
+
+    try {
+        // GASにコードが正しいか聞きに行く
+        const res = await fetch(`${GAS_URL}?mode=verifyAuth&code=${code}`);
+        const result = await res.json();
+
+        if (result.success) {
             alert("認証成功！");
             window.location.href = `pw-change.html?mode=reset&id=${id}&auth=ok`;
-        } else { alert("コードが違います"); }
+        } else {
+            alert(result.message || "コードが違います");
+        }
+    } catch (e) {
+        alert("通信エラーが発生しました");
     }
+}
 
     async function handleAdminReset() {
         const id = document.getElementById("userId").value;

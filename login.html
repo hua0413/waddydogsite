@@ -11,6 +11,7 @@
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --accent-yellow: #f59e0b;
+            --accent-green: #059669; /* メールボタン用 */
         }
 
         body {
@@ -50,6 +51,9 @@
 
         @media (max-width: 768px) {
             .dashboard { grid-template-columns: 1fr; }
+            /* スマホ時はメールボタンを隠し、注意文を出す */
+            .pc-only-btn { display: none !important; }
+            .mobile-notice { display: block !important; }
         }
 
         .side-card {
@@ -104,13 +108,28 @@
             border-radius: 12px;
             padding: 12px 24px;
             font-weight: bold;
+            font-size: 15px;
             cursor: pointer;
             transition: 0.2s;
             display: block;
             width: 100%;
             margin-top: 10px;
+            text-decoration: none;
+            box-sizing: border-box;
         }
         .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        .pc-only-btn { background: var(--accent-green); }
+
+        .mobile-notice {
+            display: none;
+            font-size: 12px;
+            color: #94a3b8;
+            margin: 10px 0;
+            padding: 8px;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
 
         input {
             width: 100%; padding: 12px; margin: 10px 0;
@@ -221,7 +240,11 @@
         <h2 id="welcome-msg" style="margin: 10px 0;">名前 さん</h2>
         <p style="color: #64748b; font-size: 14px;">WaddyDog Projectメンバー</p>
         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-        <button onclick="window.location.href='pw-change.html?mode=anytime'" class="btn" style="background: #1e293b; font-size: 13px;">🔒 パスワード変更</button>
+        
+        <a href="mail.html" class="btn pc-only-btn">📩 社内メールを確認</a>
+        <div class="mobile-notice">📩 社内メール機能はPC版限定です</div>
+
+        <button onclick="window.location.href='pw-change.html?mode=anytime'" class="btn" style="background: #1e293b; font-size: 13px; margin-top: 15px;">🔒 パスワード変更</button>
         <button onclick="logout()" class="btn" style="background: #64748b;">ログアウト</button>
     </aside>
 
@@ -346,7 +369,6 @@
         document.getElementById('forgot-options').classList.add('hidden');
     }
 
-    // 登録ガイド画面を表示
     function showAuthRegister() {
         const id = document.getElementById("userId").value;
         if (!id) return alert("先に社員IDを入力してください");
@@ -355,7 +377,6 @@
         document.getElementById('auth-register-guide').classList.remove('hidden');
     }
 
-    // コード入力画面を表示
     function showAuthInput() {
         document.getElementById('auth-register-guide').classList.add('hidden');
         document.getElementById('auth-reset-area').classList.remove('hidden');
@@ -370,7 +391,6 @@
         
         btn.disabled = true; btn.innerText = "認証中...";
 
-        // 本来はGAS等でコード検証。今回は固定値123456でテスト。
         setTimeout(() => {
             if (code === "123456") {
                 alert("認証成功！パスワード再設定画面へ移動します。");

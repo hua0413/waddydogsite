@@ -71,14 +71,15 @@
         <p style="font-size:12px;">以下のQRコードを認証アプリでスキャンしてください</p>
         <img id="auth-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=otpauth://totp/WaddyPortal?secret=JBSWY3DPEHPK3PXP&issuer=WaddyDog" style="margin:10px 0;">
         <p style="font-size:12px;">または以下のコードを認証アプリに入力してください</p>
-        <p style="font-size:15px; color:#64748b;">JBSWY3DPEHPK3PXP</p>
+        <p style="font-size:15px; color:#64748b;">コード名：WaddyPortal</p>
+        <p style="font-size:15px; color:#64748b;">キー：JBSWY3DPEHPK3PXP</p>
     </div>
             <button class="btn" onclick="showAuthInput()">次へ</button>
             <button onclick="showForgotOptions()" style="border:none; background:none; font-size:12px; color:#94a3b8; margin-top:10px;">戻る</button>
         </div>
 
         <div id="auth-reset-area" class="hidden">
-            <p>認証コードを入力</p>
+            <p>6桁の認証コードを入力</p>
             <input type="text" id="authCode" class="auth-input" placeholder="000000" maxlength="6">
             <button id="authVerifyBtn" class="btn" onclick="executeAuthVerify()">認証して進む</button>
             <button onclick="showAuthRegister()" style="border:none; background:none; font-size:12px; color:#94a3b8; margin-top:10px;">戻る</button>
